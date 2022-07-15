@@ -164,6 +164,7 @@ getDevicesButton.addEventListener("click", (e) => {
 //cuando se hace click en el boton Unsubscribe All
 unsubscribeButton.addEventListener("click", (e) => {
     e.preventDefault();
+    unsubscribeError.style.display = "none";
 
     if (!sigfoxResponse.hasOwnProperty("data")) {
         unsubscribeError.textContent = "No devices to unsubscribe!";
@@ -173,4 +174,17 @@ unsubscribeButton.addEventListener("click", (e) => {
 
     //crear request put al backend uapp para desuscribir
     console.log("rutina para desuscribir");
+
+    // // armar json para devolver al frontend
+    JsonToUns = {
+        data: [],
+    };
+
+    Rdata = sigfoxResponse.data;
+    Rdata.forEach((element) => {
+        JsonToUns.data[Rdata.indexOf(element)] = {
+            id: element.id,
+            unsubscriptionTime: "12345",
+        };
+    });
 });

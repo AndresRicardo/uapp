@@ -1,3 +1,4 @@
+require("dotenv").config();
 const fetch = require("node-fetch");
 const express = require("express");
 const cors = require("cors");
@@ -71,12 +72,20 @@ async function getDevicesFromSigfoxApi(user, pss, groupId, devTypeId) {
 app.get("/devices", (req, res) => {
     console.log(`SE RECIBE UN REQUEST DESDE EL FRONTEND`);
 
+    ///////////////////////////////////////////////////////////////// CAMBIAR ESTO
     //Obteniendo headers del request del frontend
+    // const hostname = req.hostname;
+    // const user = req.headers.user;
+    // const password = req.headers.password;
+    // const groupId = req.headers.groupid;
+    // const deviceTypeId = req.headers.devicetypeid;
+
     const hostname = req.hostname;
-    const user = req.headers.user;
-    const password = req.headers.password;
-    const groupId = req.headers.groupid;
-    const deviceTypeId = req.headers.devicetypeid;
+    const user = process.env.SIGFOX_API_USERNAME;
+    const password = process.env.SIGFOX_API_PASSWORD;
+    const groupId = process.env.TEST_SIGFOX_GROUP;
+    const deviceTypeId = process.env.TEST_SIGFOX_DEVICE_TYPE;
+    /////////////////////////////////////////////////////////////////
 
     console.log(`INFORMACION DEL REQUEST:`);
     console.log(`api: request get desde http://${hostname} `);
@@ -99,23 +108,6 @@ app.get("/devices", (req, res) => {
         console.log("DATA RECIBIDA DESDE SIGFOX: ");
         console.log(info);
         res.send(info);
-
-        // // armar json para devolver al frontend
-        // toFront = {
-        //     data: [],
-        // };
-
-        // info.data.forEach((element) => {
-        //     toFront.data[info.data.indexOf(element)] = {
-        //         id: element.id,
-        //         unsubscriptionTime: "undefined",
-        //     };
-        // });
-
-        // // devolver listado de id´s
-        // console.log(`DATOS DEVUELTOS DESDE EL BACKEND UAPP`);
-        // console.log(toFront);
-        // res.send(toFront);
     });
 });
 
