@@ -1,0 +1,126 @@
+$colorLightBlue: #0dcbff;
+$colorDarkBlue: #230068;
+$colorDarkPurple: #230068;
+$colorRed: #bf1a2f;
+$colorGreen: #20bf55;
+$colorLightGray: #bdc1c3;
+$colorLightGray2: #eaeaea;
+$colorDarkGray: #333333;
+
+* {
+    // margin: 0px;
+    // pad: 0px;
+    box-sizing: border-box;
+}
+
+body {
+    width: 100%;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+header {
+    width: 100%;
+    margin: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+
+    #logoSigfoxOperator {
+        width: 100px;
+        img {
+            width: 100%;
+        }
+    }
+    h1 {
+        align-self: center;
+        text-align: center;
+        color: $colorDarkBlue;
+    }
+    #logoWnd {
+        width: 100px;
+        img {
+            width: 100%;
+        }
+    }
+}
+
+#container {
+    width: 100%;
+
+    #getDevicesList {
+        background-color: $colorLightGray2;
+        width: fit-content;
+        margin: 10px;
+        padding: 10px;
+        border: 1px solid $colorLightGray;
+        border-radius: 5px;
+
+        .text-danger {
+            display: none;
+            margin-top: 10px;
+        }
+
+        .alert {
+            display: none;
+            margin-top: 10px;
+        }
+
+        Button {
+            margin-top: 10px;
+        }
+
+        #unsubscribeButton {
+            display: none;
+        }
+
+        #devicesTable {
+            margin-top: 10px;
+            text-align: center;
+            display: none;
+            // border-collapse: collapse;
+            // border-spacing: 5px 0px;
+            border: 1px solid #0d6efd;
+
+            th {
+                background-color: #0d6efd;
+                color: white;
+                padding: 0px 8px;
+            }
+
+            td {
+                padding: 0px 8px;
+            }
+        }
+    }
+
+    #singleDeviceUnsubscribe {
+        background-color: $colorLightGray2;
+        width: max-content;
+        margin: 10px;
+        padding: 10px;
+        border: 1px solid $colorLightGray;
+        border-radius: 5px;
+        display: none;
+
+        h2 {
+            color: $colorDarkBlue;
+        }
+
+        form {
+            label {
+                color: $colorDarkGray;
+            }
+
+            .alert {
+                display: none;
+            }
+        }
+    }
+
+    // #multipleDeviceUnsubscribe {
+    // }
+}
