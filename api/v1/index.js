@@ -70,7 +70,7 @@ async function getDevicesFromSigfoxApi(user, pss, groupId, devTypeId) {
 
 //cuando hagan un get a http://localhost:3000/devices hacer esto
 app.get("/devices", (req, res) => {
-    console.log(`SE RECIBE UN REQUEST DESDE EL FRONTEND`);
+    console.log(`SE RECIBE UN REQUEST GET DESDE EL FRONTEND`);
 
     ///////////////////////////////////////////////////////////////// CAMBIAR ESTO
     //Obteniendo headers del request del frontend
@@ -111,11 +111,20 @@ app.get("/devices", (req, res) => {
     });
 });
 
-//cuando hagan un post a http://localhost:3000/unsubscribe hacer esto
-app.post("/unsub", (req, res) => {
-    console.log("api: me hicieron un request post");
-    res.send("api: en un momento respondo a su request post");
-    // armar json con id devices y unsubscriptionTime (doc api sigfox)
+//cuando hagan un post a http://localhost:3000/devices/bulk/unsubscribe hacer esto
+app.post("/devices/bulk/unsubscribe", (req, res) => {
+    console.log(`SE RECIBE UN REQUEST POST DESDE EL FRONTEND`);
+
+    const respJson = JSON.stringify({
+        msg1: "api: en un momento respondo a su request post",
+        msg2: "asdf",
+        msg3: "asdf",
+        msg4: "asdf",
+        msg5: "asdf",
+    });
+    console.log(`JSON A RESPONDER: ${respJson}`);
+    res.send(respJson);
+
     // hacer request post al API sigfox para poner unsubscription date a los devices
 });
 
