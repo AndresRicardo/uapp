@@ -115,17 +115,35 @@ app.get("/devices", (req, res) => {
 app.post("/devices/bulk/unsubscribe", (req, res) => {
     console.log(`SE RECIBE UN REQUEST POST DESDE EL FRONTEND`);
 
-    const respJson = JSON.stringify({
-        msg1: "api: en un momento respondo a su request post",
-        msg2: "asdf",
-        msg3: "asdf",
-        msg4: "asdf",
-        msg5: "asdf",
-    });
-    console.log(`JSON A RESPONDER: ${respJson}`);
-    res.send(respJson);
+    ///////////////////////////////////////////////////////////////// CAMBIAR ESTO
+    // Obteniendo headers del request del frontend
+    const hostname = req.hostname;
+    const user = req.headers.user;
+    const password = req.headers.password;
+    const groupId = req.headers.groupid;
+    const body = req.body;
+
+    // const hostname = req.hostname;
+    // const user = process.env.SIGFOX_API_USERNAME;
+    // const password = process.env.SIGFOX_API_PASSWORD;
+    // const groupId = process.env.TEST_SIGFOX_GROUP;
+    /////////////////////////////////////////////////////////////////
+
+    console.log(`INFORMACION DEL REQUEST:`);
+    console.log(`api: request get desde http://${hostname} `);
+    console.log(`api: request header user: ${user}`);
+    console.log(`api: request header password: ${password}`);
+    console.log(`api: request header groupId: ${groupId}`);
+    console.log(`api: request body: ${JSON.stringify(body)}`);
 
     // hacer request post al API sigfox para poner unsubscription date a los devices
+
+    const respJson = JSON.stringify({
+        msg1: "api: en un momento respondo a su request post",
+    });
+
+    console.log(`JSON A RESPONDER: ${respJson}`);
+    res.send(respJson);
 });
 
 app.listen(port, () => {

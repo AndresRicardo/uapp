@@ -11,6 +11,8 @@ const alertSuccess = document.querySelector(".alert-success");
 const alertDanger = document.querySelector(".alert-danger");
 const getDevicesButton = document.querySelector("#getDevicesButton");
 const unsubscribeButton = document.querySelector("#unsubscribeButton");
+const end = document.querySelector("#end");
+const unsubscribeSuccessful = document.querySelector("#unsubscribeSuccessful");
 const unsubscribeError = document.querySelector("#unsubscribeError");
 const devicesTable = document.querySelector("#devicesTable");
 const tableBody = document.querySelector("#devicesTableBody");
@@ -24,7 +26,8 @@ const regexpGroup = /^[A-Za-z0-9\s]+$/;
 const regexpDeviceType = /^[A-Za-z0-9\s]+$/;
 
 //data recibida desde sigfox
-let sigfoxResponse = {};
+let getDevicesResponse = {};
+let unsubscribeResponse = {};
 
 //funcion para consultar al backend los devices en un determiando device type
 async function getDevices(
@@ -70,9 +73,60 @@ async function getDevices(
             // console.log(response);
         }
     } catch (error) {
-        console.log("ERROR HACIENDO ALGO:");
+        console.log("ERROR OBTENIENDO DEVICES:");
         console.log(error);
     }
+}
+
+//funcion para desuscribir multiples devices
+async function unsubscribeMultipleDevices(
+    username,
+    password,
+    group,
+    requestBody
+) {
+    const url = "http://localhost:3000/devices/bulk/unsubscribe"; //para consultar devices en el device type especificado
+    const options = {
+        method: "POST", // *GET, POST, PUT, DELETE, etc.
+        mode: "cors", // no-cors, *cors, same-origin
+        credentials: "same-origin", // include, *same-origin, omit
+        headers: {
+            user: username,
+            password: password,
+            groupid: group,
+            accept: "application/json",
+            "content-Type": "application/json",
+        },
+        body: JSON.stringify(requestBody),
+    };
+
+    console.log("Request post:");
+    console.log(JSON.stringify(options));
+
+    try {
+        const response = await fetch(url, options);
+        try {
+            console.log("PARSEO JSON DATA CORRECTO");
+            return response.json();
+        } catch (error) {
+            console.log(`ERROR PARSEANDO JSON, ERROR CAPTURADO: ${error}`);
+            return `ERROR PARSEANDO JSON, ERROR CAPTURADO: ${error}`;
+        }
+    } catch (error) {
+        return `ERROR DANDO DE BAJA DEVICES, ERROR CAPTURADO: ${error}`;
+    }
+}
+
+//para formatear la fecha
+function formatoFecha(fecha) {
+    let dd = fecha.getDate();
+    let mm = fecha.getMonth() + 1;
+    let yy = fecha.getFullYear().toString();
+
+    if (Number(dd) <= 9) dd = `0${dd}`;
+    if (Number(mm) <= 9) mm = `0${mm}`;
+
+    return `${yy}-${mm}-${dd}`;
 }
 
 //mostrar/ocultar spinner de carga
@@ -120,7 +174,10 @@ getDevicesButton.addEventListener("click", (e) => {
     passwordError.style.display = "none";
     groupError.style.display = "none";
     deviceTypeError.style.display = "none";
+    unsubscribeButton.style.display = "none";
+    end.style.display = "none";
     unsubscribeError.style.display = "none";
+    unsubscribeSuccessful.style.display = "none";
 
     let error = false;
 
@@ -142,21 +199,33 @@ getDevicesButton.addEventListener("click", (e) => {
     }
     if (error) return;
 
-    const response = getDevices(
+    //se pone la fecha actual al input date
+    const tiempoTranscurrido = Date.now();
+    const hoy = new Date(tiempoTranscurrido);
+    end.style.display = "inline-block";
+    end.value = formatoFecha(hoy);
+    end.min = formatoFecha(hoy);
+    console.log(end.min);
+
+    const getdevicesResponse = getDevices(
         username.value,
         password.value,
         group.value,
         deviceType.value
     );
 
-    response.then((dataJson) => {
+    getdevicesResponse.then((dataJson) => {
         console.log("DATA RECIBIDA DESDE BACKEND UAAP: ");
-        sigfoxResponse = dataJson;
+        getDevicesResponse = dataJson;
         console.log(dataJson);
         pintarData(dataJson);
-        if (dataJson.data.length != 0)
+        if (dataJson.data.length != 0) {
             unsubscribeButton.style.display = "inline-block";
-        else unsubscribeButton.style.display = "none";
+            end.style.display = "inline-block";
+        } else {
+            unsubscribeButton.style.display = "none";
+            end.style.display = "none";
+        }
         loadingData(false);
     });
 });
@@ -164,27 +233,49 @@ getDevicesButton.addEventListener("click", (e) => {
 //cuando se hace click en el boton Unsubscribe All
 unsubscribeButton.addEventListener("click", (e) => {
     e.preventDefault();
+    loadingData(true);
     unsubscribeError.style.display = "none";
+    unsubscribeSuccessful.style.display = "none";
 
-    if (!sigfoxResponse.hasOwnProperty("data")) {
+    //crear request post al backend uapp para dar de baja multiples devices
+    console.log("RUTINA PARA DAR DE BAJA MULTIPLES DEVICES");
+
+    //si no hay devices para dar de baja
+    if (!getDevicesResponse.hasOwnProperty("data")) {
+        loadingData(false);
         unsubscribeError.textContent = "No devices to unsubscribe!";
         unsubscribeError.style.display = "block";
         return;
     }
 
-    //crear request put al backend uapp para desuscribir
-    console.log("rutina para desuscribir");
-
-    // // armar json para devolver al frontend
-    JsonToUns = {
+    // body del request al backend de uapp
+    let requestBody = {
         data: [],
     };
 
-    Rdata = sigfoxResponse.data;
+    //se llena el body del request
+    let Rdata = getDevicesResponse.data;
     Rdata.forEach((element) => {
-        JsonToUns.data[Rdata.indexOf(element)] = {
+        requestBody.data[Rdata.indexOf(element)] = {
             id: element.id,
-            unsubscriptionTime: "12345",
+            unsubscriptionTime: end.valueAsNumber,
         };
+    });
+
+    let unsubResponse = unsubscribeMultipleDevices(
+        username.value,
+        password.value,
+        group.value,
+        requestBody
+    );
+
+    unsubResponse.then((resp) => {
+        console.log("DATA RECIBIDA DESDE BACKEND UAAP: ");
+        unsubscribeResponse = resp;
+        console.log(resp);
+
+        if (resp.ok) unsubscribeSuccessful.style.display = "inline-block";
+
+        loadingData(false);
     });
 });

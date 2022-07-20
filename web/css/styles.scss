@@ -64,6 +64,11 @@ header {
             margin-top: 10px;
         }
 
+        .text-success {
+            display: none;
+            margin-top: 10px;
+        }
+
         .alert {
             display: none;
             margin-top: 10px;
@@ -74,6 +79,12 @@ header {
         }
 
         #unsubscribeButton {
+            display: none;
+        }
+
+        #labelEnd,
+        #end {
+            margin: 0.4rem 0;
             display: none;
         }
 
