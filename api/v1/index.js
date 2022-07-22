@@ -69,8 +69,13 @@ async function getDevicesFromSigfoxApi(user, pss, groupId, devTypeId) {
     }
 }
 
-//dar de baja multiples devices en el backend de sigfox
-async function unsubscribeMultipleDevices(user, pss, groupId, body) {
+//cambiar token validity a multiples devices en el backend de sigfox
+async function changeTokenValidityMultipleDevices(
+    user,
+    pss,
+    groupId = "",
+    body
+) {
     const auth = `${user}:${pss}`;
     const authCoded = Buffer.from(auth, "utf-8").toString("base64");
     // const authCoded = btoa(`${formusername}:${formpassword}`); //funciona pero btoa es obsoleta
@@ -123,17 +128,17 @@ app.get("/devices", (req, res) => {
 
     ///////////////////////////////////////////////////////////////// CAMBIAR ESTO
     //Obteniendo headers del request del frontend
-    // const hostname = req.hostname;
-    // const user = req.headers.user;
-    // const password = req.headers.password;
-    // const groupId = req.headers.groupid;
-    // const deviceTypeId = req.headers.devicetypeid;
-
     const hostname = req.hostname;
-    const user = process.env.SIGFOX_API_USERNAME;
-    const password = process.env.SIGFOX_API_PASSWORD;
-    const groupId = process.env.TEST_SIGFOX_GROUP;
-    const deviceTypeId = process.env.TEST_SIGFOX_DEVICE_TYPE;
+    const user = req.headers.user;
+    const password = req.headers.password;
+    const groupId = req.headers.groupid;
+    const deviceTypeId = req.headers.devicetypeid;
+
+    // const hostname = req.hostname;
+    // const user = process.env.SIGFOX_API_USERNAME;
+    // const password = process.env.SIGFOX_API_PASSWORD;
+    // const groupId = process.env.TEST_SIGFOX_GROUP;
+    // const deviceTypeId = process.env.TEST_SIGFOX_DEVICE_TYPE;
     /////////////////////////////////////////////////////////////////
 
     console.log(`INFORMACION DEL REQUEST:`);
@@ -156,7 +161,6 @@ app.get("/devices", (req, res) => {
     response.then((info) => {
         console.log("DATA RECIBIDA DESDE SIGFOX: ");
         console.log(info);
-        console.log(`token: ${JSON.stringify(info.data[0].token)}`);
         res.send(info);
     });
 });
@@ -168,15 +172,15 @@ app.post("/devices/bulk/unsubscribe", (req, res) => {
     ///////////////////////////////////////////////////////////////// CAMBIAR ESTO
     // Obteniendo headers del request del frontend
     const hostname = req.hostname;
-    // const user = req.headers.user;
-    // const password = req.headers.password;
-    // const groupId = req.headers.groupid;
+    const user = req.headers.user;
+    const password = req.headers.password;
+    const groupId = req.headers.groupid;
     const body = req.body;
 
     ///////////////////////////////////////////////////////////////// COMENTAR DESCOMENTAR ESTO
-    const user = process.env.SIGFOX_API_USERNAME;
-    const password = process.env.SIGFOX_API_PASSWORD;
-    const groupId = process.env.TEST_SIGFOX_GROUP;
+    // const user = process.env.SIGFOX_API_USERNAME;
+    // const password = process.env.SIGFOX_API_PASSWORD;
+    // const groupId = process.env.TEST_SIGFOX_GROUP;
     /////////////////////////////////////////////////////////////////
 
     console.log(`INFORMACION DEL REQUEST:
@@ -188,7 +192,12 @@ app.post("/devices/bulk/unsubscribe", (req, res) => {
 
     // hacer post al API sigfox para poner unsubscription date a los devices
 
-    const response = unsubscribeMultipleDevices(user, password, groupId, body);
+    const response = changeTokenValidityMultipleDevices(
+        user,
+        password,
+        groupId,
+        body
+    );
 
     response.then((respJson) => {
         console.log(

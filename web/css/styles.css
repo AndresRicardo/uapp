@@ -62,7 +62,7 @@ header #logoWnd img {
 #container #getDevicesList Button {
   margin-top: 10px;
 }
-#container #getDevicesList #unsubscribeButton {
+#container #getDevicesList #changeAllButton {
   display: none;
 }
 #container #getDevicesList #labelEnd,

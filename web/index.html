@@ -28,28 +28,28 @@
             <form id="GetDevicesListForm">
 
                 <label for="username" class="form-label">User name</label>
-                <input type="text" name="username" id="username" class="form-control" required>
+                <input type="text" name="username" id="username" class="form-control" autocomplete="on" required>
 
                 <p id="usernameError" class="text-danger" role="alert">
                     Username is wrong!
                 </p>
 
                 <label for="password" class="form-label">Password</label>
-                <input type="text" name="password" id="password" class="form-control" required>
+                <input type="text" name="password" id="password" class="form-control" autocomplete="on" required>
 
                 <p id="passwordError" class="text-danger" role="alert">
                     Password is wrong!
                 </p>
 
                 <label for="group" class="form-label">Group ID</label>
-                <input type="text" name="group" id="group" class="form-control">
+                <input type="text" name="group" id="group" class="form-control" required>
 
                 <p id="groupError" class="text-danger" role="alert">
                     Group ID is wrong!
                 </p>
 
                 <label for="deviceType" class="form-label">Device type ID</label>
-                <input type="text" name="deviceType" id="deviceType" class="form-control">
+                <input type="text" name="deviceType" id="deviceType" class="form-control" required>
 
                 <p id="deviceTypeError" class="text-danger" role="alert">
                     Device type ID is wrong!
@@ -77,7 +77,7 @@
                     Code 200. Success request. xxx Registers obtained
                 </div>
                 <div id="ErrorRequest" class="alert alert-danger" role="alert">
-                    Code 400. Request error. 0 Resgisters obteined
+                    Request error. 0 Records obtained
                 </div>
 
             </form>

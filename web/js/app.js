@@ -18,6 +18,7 @@ const devicesTable = document.querySelector("#devicesTable");
 const tableBody = document.querySelector("#devicesTableBody");
 const templateFila = document.querySelector("#templateFila").content;
 const item = document.querySelector(".item");
+const ErrorRequest = document.querySelector("#ErrorRequest");
 
 const loading = document.querySelector("#loading");
 
@@ -76,6 +77,7 @@ async function getDevices(
     } catch (error) {
         console.log("ERROR OBTENIENDO DEVICES:");
         console.log(error);
+        loadingData(false);
     }
 }
 
@@ -199,6 +201,9 @@ getDevicesButton.addEventListener("click", (e) => {
     unsubscribeError.style.display = "none";
     unsubscribeSuccessful.style.display = "none";
     devicesTable.style.display = "none";
+    ErrorRequest.style.display = "none";
+
+    getDevicesResponse = {};
 
     let error = false;
 
@@ -240,31 +245,36 @@ getDevicesButton.addEventListener("click", (e) => {
 
     getdevicesResponse.then((dataJson) => {
         console.log("DATA RECIBIDA DESDE BACKEND UAAP: ");
-        getDevicesResponse = dataJson;
-        console.log(dataJson);
-        pintarData(dataJson);
-        if (dataJson.data.length != 0) {
-            changeAllButton.style.display = "inline-block";
-            end.style.display = "inline-block";
+        if (dataJson) {
+            getDevicesResponse = dataJson;
+            console.log(dataJson);
+            pintarData(dataJson);
+            if (dataJson.data.length != 0) {
+                changeAllButton.style.display = "inline-block";
+                end.style.display = "inline-block";
+            } else {
+                changeAllButton.style.display = "none";
+                end.style.display = "none";
+            }
         } else {
-            changeAllButton.style.display = "none";
-            end.style.display = "none";
+            getDevicesResponse = {};
+            ErrorRequest.style.display = "inline-block";
         }
         loadingData(false);
     });
 });
 
-//cuando se hace click en el boton Unsubscribe All
+//cuando se hace click en el boton changeAllButton
 changeAllButton.addEventListener("click", (e) => {
     e.preventDefault();
     loadingData(true);
     unsubscribeError.style.display = "none";
     unsubscribeSuccessful.style.display = "none";
 
-    //crear request post al backend uapp para dar de baja multiples devices
-    console.log("RUTINA PARA DAR DE BAJA MULTIPLES DEVICES");
+    //crear request post al backend uapp para cambiar token validity a multiples devices
+    console.log("RUTINA PARA CAMBIAR TOKEN VALIDITY A MULTIPLES DEVICES");
 
-    //si no hay devices para dar de baja
+    //si no hay devices para cambiar token validity
     if (!getDevicesResponse.hasOwnProperty("data")) {
         loadingData(false);
         unsubscribeError.textContent = "No devices to unsubscribe!";
