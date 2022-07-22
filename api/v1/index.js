@@ -2,6 +2,7 @@ require("dotenv").config();
 const fetch = require("node-fetch");
 const express = require("express");
 const cors = require("cors");
+const { json } = require("express");
 
 const app = express();
 const port = 3000;
@@ -68,6 +69,54 @@ async function getDevicesFromSigfoxApi(user, pss, groupId, devTypeId) {
     }
 }
 
+//dar de baja multiples devices en el backend de sigfox
+async function unsubscribeMultipleDevices(user, pss, groupId, body) {
+    const auth = `${user}:${pss}`;
+    const authCoded = Buffer.from(auth, "utf-8").toString("base64");
+    // const authCoded = btoa(`${formusername}:${formpassword}`); //funciona pero btoa es obsoleta
+
+    const url = `https://api.sigfox.com/v2/devices/bulk/unsubscribe?groupid=${groupId}`;
+    const options = {
+        method: "POST", // *GET, POST, PUT, DELETE, etc.
+        mode: "no-cors", // no-cors, *cors, same-origin
+        credentials: "include", // include, *same-origin, omit
+        headers: {
+            Authorization: `basic ${authCoded}`,
+            Accept: "application/json",
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body),
+    };
+
+    try {
+        const response = await fetch(url, options);
+
+        if (response.ok) {
+            console.log("SOLICITUD OK, DATOS DE RESPUESTA DE SIGFOX");
+            console.log("fetch ok");
+            console.log("respuesta server ok");
+            console.log(`codigo de respuesta: ${response.status}`);
+            console.log("url: ", response.url);
+
+            try {
+                const responseJson = await response.json();
+                console.log("PARSEO JSON CORRECTO");
+                // console.log(responseJson);
+                return responseJson;
+            } catch (error) {
+                console.log(`ERROR PARSEANDO DATA JSON, ERROR: ${error}`);
+            }
+        } else {
+            console.log("SERVER RESPONDIÓ CON ERROR:");
+            console.log(`RESPUESTA CODE: ${response.status}`);
+            // console.log("RESPUESTA DATA: ");
+            // console.log(response);
+        }
+    } catch (error) {
+        console.log(`ERROR EN FETCH, ERROR: ${error}`);
+    }
+}
+
 //cuando hagan un get a http://localhost:3000/devices hacer esto
 app.get("/devices", (req, res) => {
     console.log(`SE RECIBE UN REQUEST GET DESDE EL FRONTEND`);
@@ -107,43 +156,48 @@ app.get("/devices", (req, res) => {
     response.then((info) => {
         console.log("DATA RECIBIDA DESDE SIGFOX: ");
         console.log(info);
+        console.log(`token: ${JSON.stringify(info.data[0].token)}`);
         res.send(info);
     });
 });
 
 //cuando hagan un post a http://localhost:3000/devices/bulk/unsubscribe hacer esto
 app.post("/devices/bulk/unsubscribe", (req, res) => {
-    console.log(`SE RECIBE UN REQUEST POST DESDE EL FRONTEND`);
+    console.log(`SOLICITUD DEL FRONTEND PARA DAR DE BAJA MULTIPLES DEVICES`);
 
     ///////////////////////////////////////////////////////////////// CAMBIAR ESTO
     // Obteniendo headers del request del frontend
     const hostname = req.hostname;
-    const user = req.headers.user;
-    const password = req.headers.password;
-    const groupId = req.headers.groupid;
+    // const user = req.headers.user;
+    // const password = req.headers.password;
+    // const groupId = req.headers.groupid;
     const body = req.body;
 
-    // const hostname = req.hostname;
-    // const user = process.env.SIGFOX_API_USERNAME;
-    // const password = process.env.SIGFOX_API_PASSWORD;
-    // const groupId = process.env.TEST_SIGFOX_GROUP;
+    ///////////////////////////////////////////////////////////////// COMENTAR DESCOMENTAR ESTO
+    const user = process.env.SIGFOX_API_USERNAME;
+    const password = process.env.SIGFOX_API_PASSWORD;
+    const groupId = process.env.TEST_SIGFOX_GROUP;
     /////////////////////////////////////////////////////////////////
 
-    console.log(`INFORMACION DEL REQUEST:`);
-    console.log(`api: request get desde http://${hostname} `);
-    console.log(`api: request header user: ${user}`);
-    console.log(`api: request header password: ${password}`);
-    console.log(`api: request header groupId: ${groupId}`);
-    console.log(`api: request body: ${JSON.stringify(body)}`);
+    console.log(`INFORMACION DEL REQUEST:
+    api: request get desde http://${hostname}
+    api: request header user: ${user}
+    api: request header password: ${password}
+    api: request header groupId: ${groupId}
+    api: request body: ${JSON.stringify(body)}`);
 
-    // hacer request post al API sigfox para poner unsubscription date a los devices
+    // hacer post al API sigfox para poner unsubscription date a los devices
 
-    const respJson = JSON.stringify({
-        msg1: "api: en un momento respondo a su request post",
+    const response = unsubscribeMultipleDevices(user, password, groupId, body);
+
+    response.then((respJson) => {
+        console.log(
+            `JSON ENVIADO COMO RESPUESTA AL FRONTEND: ${JSON.stringify(
+                respJson
+            )}`
+        );
+        res.send(respJson);
     });
-
-    console.log(`JSON A RESPONDER: ${respJson}`);
-    res.send(respJson);
 });
 
 app.listen(port, () => {

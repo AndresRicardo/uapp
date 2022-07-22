@@ -56,12 +56,12 @@
                 </p>
 
                 <button type="submit" id="getDevicesButton" class="btn btn-primary">Get Devices</button>
-                <button type="submit" id="unsubscribeButton" class="btn btn-primary">Unsubscribe All</button>
+                <button type="submit" id="changeAllButton" class="btn btn-primary">Change All</button>
                 <label for="end" id="labelEnd">End date:</label>
                 <input type="date" id="end" name="end-date" value="2022-01-01" required>
 
                 <p id="unsubscribeSuccessful" class="text-success" role="alert">
-                    Usubscribe multiple devices successful
+                    Token validity date changed successfull!!!
                 </p>
 
                 <p id="unsubscribeError" class="text-danger" role="alert">
@@ -91,6 +91,7 @@
                         <th>DEVICE ID</th>
                         <th>DEVICE TYPE</th>
                         <th>GROUP</th>
+                        <th>TOKEN VALIDITY</th>
                     </tr>
                 </tbody>
             </table>
@@ -150,6 +151,7 @@
             <td class="item idItem"></td>
             <td class="item dtItem"></td>
             <td class="item grItem"></td>
+            <td class="item tvItem"></td>
         </tr>
     </template>
     <script src="js/app.js"></script>

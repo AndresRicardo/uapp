@@ -10,13 +10,14 @@ const deviceTypeError = document.querySelector("#deviceTypeError");
 const alertSuccess = document.querySelector(".alert-success");
 const alertDanger = document.querySelector(".alert-danger");
 const getDevicesButton = document.querySelector("#getDevicesButton");
-const unsubscribeButton = document.querySelector("#unsubscribeButton");
+const changeAllButton = document.querySelector("#changeAllButton");
 const end = document.querySelector("#end");
 const unsubscribeSuccessful = document.querySelector("#unsubscribeSuccessful");
 const unsubscribeError = document.querySelector("#unsubscribeError");
 const devicesTable = document.querySelector("#devicesTable");
 const tableBody = document.querySelector("#devicesTableBody");
 const templateFila = document.querySelector("#templateFila").content;
+const item = document.querySelector(".item");
 
 const loading = document.querySelector("#loading");
 
@@ -119,14 +120,25 @@ async function unsubscribeMultipleDevices(
 
 //para formatear la fecha
 function formatoFecha(fecha) {
-    let dd = fecha.getDate();
-    let mm = fecha.getMonth() + 1;
-    let yy = fecha.getFullYear().toString();
+    let day = fecha.getDate();
+    let newDay = fecha.getDate() + 1;
+    let month = fecha.getMonth() + 1;
+    let newMonth = fecha.getMonth() + 2;
+    let year = fecha.getFullYear();
+    let newYear = fecha.getFullYear() + 1;
 
-    if (Number(dd) <= 9) dd = `0${dd}`;
-    if (Number(mm) <= 9) mm = `0${mm}`;
+    if (Number(day) <= 9) day = `0${day}`;
+    if (Number(newDay) <= 9) newDay = `0${newDay}`;
+    if (Number(month) <= 9) month = `0${month}`;
+    if (Number(newMonth) <= 9) newMonth = `0${newMonth}`;
 
-    return `${yy}-${mm}-${dd}`;
+    let resp = {
+        today: `${year}-${month}-${day}`,
+        tomorrow: `${year}-${month}-${newDay}`,
+        plusOneMonth: `${year}-${newMonth}-${day}`,
+        plusOneYear: `${newYear}-${month}-${day}`,
+    };
+    return resp;
 }
 
 //mostrar/ocultar spinner de carga
@@ -141,7 +153,7 @@ const loadingData = (estado) => {
 };
 
 //pintar en la pagina la informacion recibida
-const pintarData = (response) => {
+const pintarData = (response, color = "black") => {
     if (response.data.length > 0) {
         console.log("pintando data recibida");
         devicesTable.style.display = "block";
@@ -157,6 +169,14 @@ const pintarData = (response) => {
             clone.querySelector(".idItem").textContent = item.id;
             clone.querySelector(".dtItem").textContent = item.deviceType.id;
             clone.querySelector(".grItem").textContent = item.group.id;
+            clone.querySelector(".tvItem").textContent = formatoFecha(
+                new Date(item.token.end)
+            ).today;
+
+            clone.querySelector(".idItem").style.color = color;
+            clone.querySelector(".dtItem").style.color = color;
+            clone.querySelector(".grItem").style.color = color;
+            clone.querySelector(".tvItem").style.color = color;
             fragment.appendChild(clone);
         });
         tableBody.appendChild(fragment);
@@ -174,10 +194,11 @@ getDevicesButton.addEventListener("click", (e) => {
     passwordError.style.display = "none";
     groupError.style.display = "none";
     deviceTypeError.style.display = "none";
-    unsubscribeButton.style.display = "none";
+    changeAllButton.style.display = "none";
     end.style.display = "none";
     unsubscribeError.style.display = "none";
     unsubscribeSuccessful.style.display = "none";
+    devicesTable.style.display = "none";
 
     let error = false;
 
@@ -197,15 +218,18 @@ getDevicesButton.addEventListener("click", (e) => {
         deviceTypeError.style.display = "block";
         error = true;
     }
-    if (error) return;
+    if (error) {
+        loadingData(false);
+        return;
+    }
 
-    //se pone la fecha actual al input date
+    //se pone la fecha actual y minima permitida al input date
     const tiempoTranscurrido = Date.now();
     const hoy = new Date(tiempoTranscurrido);
     end.style.display = "inline-block";
-    end.value = formatoFecha(hoy);
-    end.min = formatoFecha(hoy);
-    console.log(end.min);
+    const fechas = formatoFecha(hoy);
+    end.value = fechas.plusOneYear;
+    end.min = fechas.today;
 
     const getdevicesResponse = getDevices(
         username.value,
@@ -220,10 +244,10 @@ getDevicesButton.addEventListener("click", (e) => {
         console.log(dataJson);
         pintarData(dataJson);
         if (dataJson.data.length != 0) {
-            unsubscribeButton.style.display = "inline-block";
+            changeAllButton.style.display = "inline-block";
             end.style.display = "inline-block";
         } else {
-            unsubscribeButton.style.display = "none";
+            changeAllButton.style.display = "none";
             end.style.display = "none";
         }
         loadingData(false);
@@ -231,7 +255,7 @@ getDevicesButton.addEventListener("click", (e) => {
 });
 
 //cuando se hace click en el boton Unsubscribe All
-unsubscribeButton.addEventListener("click", (e) => {
+changeAllButton.addEventListener("click", (e) => {
     e.preventDefault();
     loadingData(true);
     unsubscribeError.style.display = "none";
@@ -269,12 +293,18 @@ unsubscribeButton.addEventListener("click", (e) => {
         requestBody
     );
 
+    //LO QUE SE HACE CON LA RESPUESTA OBTENIDA DESDE EL BACKEND DE UAPP
     unsubResponse.then((resp) => {
-        console.log("DATA RECIBIDA DESDE BACKEND UAAP: ");
+        console.log(
+            "RESPUESTA DEL BACKEND UAAP A LA SOLICITUD DE DAR DE BAJA: "
+        );
         unsubscribeResponse = resp;
         console.log(resp);
 
-        if (resp.ok) unsubscribeSuccessful.style.display = "inline-block";
+        if (resp.hasOwnProperty("jobId")) {
+            unsubscribeSuccessful.style.display = "inline-block";
+            pintarData(getDevicesResponse, "green");
+        }
 
         loadingData(false);
     });
