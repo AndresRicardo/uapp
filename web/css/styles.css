@@ -2,103 +2,214 @@
   box-sizing: border-box;
 }
 
+h2 {
+  color: #230068;
+}
+
+label {
+  margin-top: 10px;
+  color: #333333;
+}
+
 body {
   width: 100%;
-  min-height: 100vh;
+  min-height: 100%;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
   align-items: center;
 }
-
-header {
+body header {
   width: 100%;
-  margin: 15px;
+  margin-bottom: 15px;
+  padding: 15px;
+  border: 1px solid #bdc1c3;
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
+  background-color: #eaeaea;
 }
-header #logoSigfoxOperator {
+body header #logoSigfoxOperator {
   width: 100px;
 }
-header #logoSigfoxOperator img {
+body header #logoSigfoxOperator img {
   width: 100%;
 }
-header h1 {
+body header h1 {
   align-self: center;
   text-align: center;
   color: #230068;
 }
-header #logoWnd {
+body header #logoWnd {
   width: 100px;
 }
-header #logoWnd img {
+body header #logoWnd img {
   width: 100%;
 }
-
-#container {
+body #main {
   width: 100%;
+  min-height: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+  align-items: flex-start;
 }
-#container #getDevicesList {
+body #main #sidebar {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  background-color: #eaeaea;
+  width: fit-content;
+  height: 100%;
+  margin: 10px 10px 0px 0px;
+  padding: 0px;
+  border: 1px solid #bdc1c3;
+  border-radius: 5px;
+}
+body #main #sidebar input {
+  width: 20rem;
+}
+body #main #sidebar #login {
+  width: 100%;
+  padding: 10px;
+}
+body #main #sidebar .text-danger {
+  display: none;
+  margin-top: 10px;
+}
+body #main #sidebar .text-success {
+  display: none;
+  margin-top: 10px;
+}
+body #main #sidebar .alert {
+  display: none;
+  margin-top: 10px;
+}
+body #main #sidebar #authenticateButton {
+  width: 100%;
+  margin-top: 10px;
+}
+body #main #sidebar .optionButton {
+  margin-top: 0px;
+  width: 100%;
+  height: 50px;
+  border: none;
+  text-align: left;
+}
+body #main #sidebar #getDevicesOptionButton {
+  background-color: DarkGray;
+}
+body #main #container {
+  width: 100%;
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+}
+body #main #container #getDevicesList {
   background-color: #eaeaea;
   width: fit-content;
   margin: 10px;
   padding: 10px;
   border: 1px solid #bdc1c3;
   border-radius: 5px;
+  display: block;
 }
-#container #getDevicesList .text-danger {
+body #main #container #getDevicesList input {
+  width: 20rem;
+}
+body #main #container #getDevicesList .text-danger {
   display: none;
   margin-top: 10px;
 }
-#container #getDevicesList .text-success {
+body #main #container #getDevicesList .text-success {
   display: none;
   margin-top: 10px;
 }
-#container #getDevicesList .alert {
+body #main #container #getDevicesList .alert {
   display: none;
   margin-top: 10px;
 }
-#container #getDevicesList Button {
+body #main #container #getDevicesList Button {
   margin-top: 10px;
 }
-#container #getDevicesList #changeAllButton {
-  display: none;
-}
-#container #getDevicesList #labelEnd,
-#container #getDevicesList #end {
+body #main #container #getDevicesList #labelEnd,
+body #main #container #getDevicesList #end {
   margin: 0.4rem 0;
   display: none;
 }
-#container #getDevicesList #devicesTable {
-  margin-top: 10px;
-  text-align: center;
-  display: none;
-  border: 1px solid #0d6efd;
-}
-#container #getDevicesList #devicesTable th {
-  background-color: #0d6efd;
-  color: white;
-  padding: 0px 8px;
-}
-#container #getDevicesList #devicesTable td {
-  padding: 0px 8px;
-}
-#container #singleDeviceUnsubscribe {
+body #main #container #singleDeviceUnsubscribe {
   background-color: #eaeaea;
   width: max-content;
   margin: 10px;
   padding: 10px;
   border: 1px solid #bdc1c3;
   border-radius: 5px;
+  display: block;
+}
+body #main #container #singleDeviceUnsubscribe input {
+  width: 20rem;
+}
+body #main #container #singleDeviceUnsubscribe form .alert {
   display: none;
 }
-#container #singleDeviceUnsubscribe h2 {
-  color: #230068;
+body #main #container #singleDeviceUnsubscribe form Button {
+  margin-top: 10px;
 }
-#container #singleDeviceUnsubscribe form label {
-  color: #333333;
+body #main #container #multipleDeviceUnsubscribe {
+  background-color: #eaeaea;
+  width: max-content;
+  margin: 10px;
+  padding: 10px;
+  border: 1px solid #bdc1c3;
+  border-radius: 5px;
+  display: block;
 }
-#container #singleDeviceUnsubscribe form .alert {
+body #main #container #multipleDeviceUnsubscribe input {
+  width: 20rem;
+}
+body #main #container #multipleDeviceUnsubscribe form .alert {
   display: none;
+}
+body #main #container #multipleDeviceUnsubscribe form Button {
+  margin-top: 10px;
+}
+body #main #container #changeArea #changeAreaInputs {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+}
+body #main #container #changeArea #changeAreaInputs #methodSelector {
+  width: auto;
+  margin: 10px;
+}
+body #main #container #changeArea #changeAreaInputs #dateMethod {
+  width: auto;
+  display: block;
+}
+body #main #container #changeArea #changeAreaInputs #durationMethod {
+  width: auto;
+  display: none;
+}
+body #main #container #changeArea #changeAreaInputs #changeAllButton {
+  display: block;
+  margin-left: 10px;
+}
+body #main #container #changeArea #devicesTable {
+  margin: 10px;
+  text-align: center;
+  display: block;
+  border: 1px solid #0d6efd;
+  background-color: white;
+}
+body #main #container #changeArea #devicesTable th {
+  background-color: #0d6efd;
+  color: white;
+  padding: 0px 8px;
+}
+body #main #container #changeArea #devicesTable td {
+  padding: 0px 8px;
 }/*# sourceMappingURL=styles.css.map */

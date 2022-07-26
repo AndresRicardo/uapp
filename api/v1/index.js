@@ -7,7 +7,7 @@ const deviceTypesRouter = require("./routes/deviceTypes.js");
 const groupsRouter = require("./routes/groups.js");
 
 const app = express();
-const port = 3000;
+const port = process.env.PORT;
 
 //middleware de express
 app.use(
@@ -38,5 +38,7 @@ app.use("/groups", groupsRouter);
 console.clear();
 
 app.listen(port, () => {
-    console.log(`api: estoy ejecutandome en htttp://localhost:${port}`);
+    console.log(
+        `api: estoy ejecutandome en htttp://localhost:${process.env.PORT}`
+    );
 });

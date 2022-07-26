@@ -21,13 +21,12 @@
         <div id="logoWnd"><img src="images/Logo WND Colombia.png" alt="Logo wnd colombia"></div>
     </header>
 
-    <div id="container">
-        <section id="getDevicesList">
-            <h2 id="MultipleDeviceTitle">Get devices</h2>
+    <main id="main">
+        <aside id="sidebar">
+            <form id="login" action="submit">
+                <h2 id="AuthenticationTitle">Authentication</h2>
 
-            <form id="GetDevicesListForm">
-
-                <label for="username" class="form-label">User name</label>
+                <label for="username" class="form-label">Username</label>
                 <input type="text" name="username" id="username" class="form-control" autocomplete="on" required>
 
                 <p id="usernameError" class="text-danger" role="alert">
@@ -41,110 +40,129 @@
                     Password is wrong!
                 </p>
 
-                <label for="group" class="form-label">Group ID</label>
-                <input type="text" name="group" id="group" class="form-control" required>
-
-                <p id="groupError" class="text-danger" role="alert">
-                    Group ID is wrong!
-                </p>
-
-                <label for="deviceType" class="form-label">Device type ID</label>
-                <input type="text" name="deviceType" id="deviceType" class="form-control" required>
-
-                <p id="deviceTypeError" class="text-danger" role="alert">
-                    Device type ID is wrong!
-                </p>
-
-                <button type="submit" id="getDevicesButton" class="btn btn-primary">Get Devices</button>
-                <button type="submit" id="changeAllButton" class="btn btn-primary">Change All</button>
-                <label for="end" id="labelEnd">End date:</label>
-                <input type="date" id="end" name="end-date" value="2022-01-01" required>
-
-                <p id="unsubscribeSuccessful" class="text-success" role="alert">
-                    Token validity date changed successfull!!!
-                </p>
-
-                <p id="unsubscribeError" class="text-danger" role="alert">
-                    Something was wrong!
-                </p>
-
-                <div id="loading" class="d-none align-items-center">
-                    <strong>Loading...</strong>
-                    <div class="spinner-border ms-auto" role="status" aria-hidden="true"></div>
-                </div>
-
-                <div class="alert alert-success" role="alert">
-                    Code 200. Success request. xxx Registers obtained
-                </div>
-                <div id="ErrorRequest" class="alert alert-danger" role="alert">
-                    Request error. 0 Records obtained
-                </div>
-
+                <button type="submit" id="authenticateButton" class="btn btn-primary">Authenticate</button>
             </form>
 
-            <table id="devicesTable">
-                <thead>
-                    <caption>Devices list from sigfox</caption>
-                </thead>
-                <tbody id="devicesTableBody">
-                    <tr>
-                        <th>DEVICE ID</th>
-                        <th>DEVICE TYPE</th>
-                        <th>GROUP</th>
-                        <th>TOKEN VALIDITY</th>
-                    </tr>
-                </tbody>
-            </table>
+            <button class="optionButton" id="getDevicesOptionButton">Get devices</button>
+            <button class="optionButton" id="singleDeviceOptionButton">Update a device</button>
+            <button class="optionButton" id="multipleDevicesOptionButton">Update multiple devices</button>
+        </aside>
 
-        </section>
+        <div id="container">
+            <section id="getDevicesList">
+                <h2 id="GetDeviceTitle">Get devices</h2>
 
-        <section id="singleDeviceUnsubscribe">
-            <h2 id="singleDeviceTitle">Unsubscribe single device</h2>
+                <form id="GetDevicesListForm">
 
-            <form id="singleDeviceForm">
+                    <label for="group" class="form-label">Group ID</label>
+                    <input type="text" name="group" id="group" class="form-control" required>
 
-                <label for="userName" class="form-label">Username</label>
-                <input type="text" name="username" id="singleDeviceFormUsername" class="form-control">
+                    <p id="groupError" class="text-danger" role="alert">
+                        Group ID is wrong!
+                    </p>
 
-                <label for="userName" class="form-label">Password</label>
-                <input type="text" name="password" id="singleDeviceFormPassword" class="form-control">
+                    <label for="deviceType" class="form-label">Device type ID</label>
+                    <input type="text" name="deviceType" id="deviceType" class="form-control" required>
 
-                <label for="deviceId" class="form-label">Device ID</label>
-                <input type="text" name="deviceId" id="singleDeviceFormID" placeholder="In Hex Format"
-                    class="form-control">
+                    <p id="deviceTypeError" class="text-danger" role="alert">
+                        Device type ID is wrong!
+                    </p>
 
-                <label for="methodSelector" class="form-label">Select time method</label>
+                    <button type="submit" id="getDevicesButton" class="btn btn-primary">Get Devices</button>
 
-                <select name="methodSelector" id="subscriptionMethod" class="form-select"
-                    aria-label="Default select example">
-                    <option selected>Open this select menu</option>
-                    <option value="unsubscriptionTime">Unsubscription time</option>
-                    <option value="subscriptionDuration">Unsubscription Duration</option>
-                </select>
+                    <p id="unsubscribeSuccessful" class="text-success" role="alert">
+                        Token validity date changed successfull!!!
+                    </p>
 
+                    <p id="unsubscribeError" class="text-danger" role="alert">
+                        Something was wrong!
+                    </p>
 
-                <div id="durationMethod">
-                    <label for="unsubscriptionTime" class="form-label">Unsubscription Time</label>
-                    <input type="date" name="unsubscriptionTime" id="unsubscriptionTime" class="form-control">
+                    <div id="loading" class="d-none align-items-center">
+                        <strong>Loading...</strong>
+                        <div class="spinner-border ms-auto" role="status" aria-hidden="true"></div>
+                    </div>
+
+                    <div class="alert alert-success" role="alert">
+                        Code 200. Success request. xxx Registers obtained
+                    </div>
+                    <div id="ErrorRequest" class="alert alert-danger" role="alert">
+                        Request error. 0 Records obtained
+                    </div>
+
+                </form>
+
+            </section>
+
+            <section id="singleDeviceUnsubscribe">
+                <h2 id="singleDeviceTitle">Update a device</h2>
+
+                <form id="singleDeviceForm">
+
+                    <label for="deviceId" class="form-label">Device ID</label>
+                    <input type="text" name="deviceId" id="singleDeviceFormID" placeholder="In Hex Format"
+                        class="form-control">
+
+                    <div id="successRequest" class="alert alert-success" role="alert">
+                        Code 200. Success Request!
+                    </div>
+                    <div id="ErrorRequest" class="alert alert-danger" role="alert">
+                        Code 400. Request Error!
+                    </div>
+
+                    <button type="submit" id="validateSingleDeviceButton" class="btn btn-primary">Validate
+                        Device</button>
+                </form>
+
+            </section>
+
+            <section id="multipleDeviceUnsubscribe">
+                <h2 id="multipleDeviceTitle">Update multiple devices</h2>
+
+                <form id="multipleDeviceForm">
+
+                    <label for="csvFile" class="form-label">Upload .csv file</label>
+                    <input type="file" name="csvFile" id="csvFileInput" placeholder="In Hex Format"
+                        class="form-control">
+
+                    <button type="submit" id="validateMultipleDevicesButton" class="btn btn-primary">Validate
+                        Devices</button>
+                </form>
+            </section>
+
+            <div id="changeArea">
+                <div id="changeAreaInputs">
+
+                    <select name="methodSelector" id="methodSelector" class="form-select"
+                        aria-label="Default select example">
+                        <option value="unsubscriptionDate" selected>Unsubscription Date</option>
+                        <option value="subscriptionDuration">Unsubscription Duration</option>
+                    </select>
+
+                    <input type="date" id="dateMethod" class="form-control">
+
+                    <input type="datetime" id="durationMethod" class="form-control" placeholder="1 Year">
+
+                    <button type="submit" id="changeAllButton" class="btn btn-primary">Update</button>
                 </div>
 
-                <div id="dateMethod">
-                    <label for="subscriptionDuration" class="form-label">Unsubscription Duration</label>
-                    <input type="datetime" name="subscriptionDuration" id="subscriptionDuration" class="form-control">
-                </div>
+                <table id="devicesTable">
+                    <thead>
+                        <caption>Devices list from sigfox</caption>
+                    </thead>
+                    <tbody id="devicesTableBody">
+                        <tr>
+                            <th>DEVICE ID</th>
+                            <th>DEVICE TYPE</th>
+                            <th>GROUP</th>
+                            <th>TOKEN VALIDITY</th>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
 
-                <div id="successRequest" class="alert alert-success" role="alert">
-                    Code 200. Success Request!
-                </div>
-                <div id="ErrorRequest" class="alert alert-danger" role="alert">
-                    Code 400. Request Error!
-                </div>
-
-            </form>
-        </section>
-
-        <section id="multipleDeviceUnsubscribe"></section>
-    </div>
+        </div>
+    </main>
 
     <template id="templateFila">
         <tr class="fila">

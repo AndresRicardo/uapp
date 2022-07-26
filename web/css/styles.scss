@@ -12,126 +12,253 @@ $colorDarkGray: #333333;
     // pad: 0px;
     box-sizing: border-box;
 }
+h2 {
+    color: $colorDarkBlue;
+}
+label {
+    margin-top: 10px;
+    color: $colorDarkGray;
+}
 
 body {
     width: 100%;
-    min-height: 100vh;
+    min-height: 100%;
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
     align-items: center;
-}
+    // background-color: darkgray;
 
-header {
-    width: 100%;
-    margin: 15px;
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-
-    #logoSigfoxOperator {
-        width: 100px;
-        img {
-            width: 100%;
-        }
-    }
-    h1 {
-        align-self: center;
-        text-align: center;
-        color: $colorDarkBlue;
-    }
-    #logoWnd {
-        width: 100px;
-        img {
-            width: 100%;
-        }
-    }
-}
-
-#container {
-    width: 100%;
-
-    #getDevicesList {
-        background-color: $colorLightGray2;
-        width: fit-content;
-        margin: 10px;
-        padding: 10px;
+    header {
+        width: 100%;
+        margin-bottom: 15px;
+        padding: 15px;
         border: 1px solid $colorLightGray;
-        border-radius: 5px;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        background-color: $colorLightGray2;
 
-        .text-danger {
-            display: none;
-            margin-top: 10px;
+        #logoSigfoxOperator {
+            width: 100px;
+            img {
+                width: 100%;
+            }
         }
-
-        .text-success {
-            display: none;
-            margin-top: 10px;
-        }
-
-        .alert {
-            display: none;
-            margin-top: 10px;
-        }
-
-        Button {
-            margin-top: 10px;
-        }
-
-        #changeAllButton {
-            display: none;
-        }
-
-        #labelEnd,
-        #end {
-            margin: 0.4rem 0;
-            display: none;
-        }
-
-        #devicesTable {
-            margin-top: 10px;
+        h1 {
+            align-self: center;
             text-align: center;
-            display: none;
-            // border-collapse: collapse;
-            // border-spacing: 5px 0px;
-            border: 1px solid #0d6efd;
-
-            th {
-                background-color: #0d6efd;
-                color: white;
-                padding: 0px 8px;
-            }
-
-            td {
-                padding: 0px 8px;
-            }
-        }
-    }
-
-    #singleDeviceUnsubscribe {
-        background-color: $colorLightGray2;
-        width: max-content;
-        margin: 10px;
-        padding: 10px;
-        border: 1px solid $colorLightGray;
-        border-radius: 5px;
-        display: none;
-
-        h2 {
             color: $colorDarkBlue;
         }
+        #logoWnd {
+            width: 100px;
+            img {
+                width: 100%;
+            }
+        }
+    }
 
-        form {
-            label {
-                color: $colorDarkGray;
+    #main {
+        width: 100%;
+        min-height: 100%;
+        display: flex;
+        flex-direction: row;
+        justify-content: space-evenly;
+        align-items: flex-start;
+
+        #sidebar {
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: flex-start;
+            background-color: $colorLightGray2;
+            width: fit-content;
+            height: 100%;
+            margin: 10px 10px 0px 0px;
+            padding: 0px;
+            border: 1px solid $colorLightGray;
+            border-radius: 5px;
+
+            input {
+                width: 20rem;
+            }
+
+            #login {
+                width: 100%;
+                padding: 10px;
+            }
+
+            .text-danger {
+                display: none;
+                margin-top: 10px;
+            }
+
+            .text-success {
+                display: none;
+                margin-top: 10px;
             }
 
             .alert {
                 display: none;
+                margin-top: 10px;
+            }
+            #authenticateButton {
+                width: 100%;
+                margin-top: 10px;
+            }
+
+            .optionButton {
+                margin-top: 0px;
+                width: 100%;
+                height: 50px;
+                border: none;
+                text-align: left;
+            }
+
+            #getDevicesOptionButton {
+                background-color: DarkGray;
+            }
+        }
+
+        #container {
+            width: 100%;
+            min-height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: flex-start;
+
+            #getDevicesList {
+                background-color: $colorLightGray2;
+                width: fit-content;
+                margin: 10px;
+                padding: 10px;
+                border: 1px solid $colorLightGray;
+                border-radius: 5px;
+                display: block;
+
+                input {
+                    width: 20rem;
+                }
+
+                .text-danger {
+                    display: none;
+                    margin-top: 10px;
+                }
+
+                .text-success {
+                    display: none;
+                    margin-top: 10px;
+                }
+
+                .alert {
+                    display: none;
+                    margin-top: 10px;
+                }
+
+                Button {
+                    margin-top: 10px;
+                }
+
+                #labelEnd,
+                #end {
+                    margin: 0.4rem 0;
+                    display: none;
+                }
+            }
+
+            #singleDeviceUnsubscribe {
+                background-color: $colorLightGray2;
+                width: max-content;
+                margin: 10px;
+                padding: 10px;
+                border: 1px solid $colorLightGray;
+                border-radius: 5px;
+                display: block;
+
+                input {
+                    width: 20rem;
+                }
+
+                form {
+                    .alert {
+                        display: none;
+                    }
+
+                    Button {
+                        margin-top: 10px;
+                    }
+                }
+            }
+
+            #multipleDeviceUnsubscribe {
+                background-color: $colorLightGray2;
+                width: max-content;
+                margin: 10px;
+                padding: 10px;
+                border: 1px solid $colorLightGray;
+                border-radius: 5px;
+                display: block;
+
+                input {
+                    width: 20rem;
+                }
+
+                form {
+                    .alert {
+                        display: none;
+                    }
+
+                    Button {
+                        margin-top: 10px;
+                    }
+                }
+            }
+
+            #changeArea {
+                #changeAreaInputs {
+                    display: flex;
+                    flex-direction: row;
+                    align-items: center;
+                    justify-content: flex-start;
+                    #methodSelector {
+                        width: auto;
+                        margin: 10px;
+                    }
+                    #dateMethod {
+                        width: auto;
+                        display: block;
+                    }
+                    #durationMethod {
+                        width: auto;
+                        display: none;
+                    }
+                    #changeAllButton {
+                        display: block;
+                        margin-left: 10px;
+                    }
+                }
+
+                #devicesTable {
+                    margin: 10px;
+                    text-align: center;
+                    display: block;
+                    // border-collapse: collapse;
+                    // border-spacing: 5px 0px;
+                    border: 1px solid #0d6efd;
+                    background-color: white;
+
+                    th {
+                        background-color: #0d6efd;
+                        color: white;
+                        padding: 0px 8px;
+                    }
+
+                    td {
+                        padding: 0px 8px;
+                    }
+                }
             }
         }
     }
-
-    // #multipleDeviceUnsubscribe {
-    // }
 }

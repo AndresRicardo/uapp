@@ -1,3 +1,10 @@
+const getDevicesList = document.querySelector("#getDevicesList");
+const singleDeviceUnsubscribe = document.querySelector(
+    "#singleDeviceUnsubscribe"
+);
+const multipleDeviceUnsubscribe = document.querySelector(
+    "#multipleDeviceUnsubscribe"
+);
 const GetDevicesListForm = document.querySelector("#GetDevicesListForm");
 const username = document.querySelector("#username");
 const usernameError = document.querySelector("#usernameError");
@@ -11,16 +18,26 @@ const alertSuccess = document.querySelector(".alert-success");
 const alertDanger = document.querySelector(".alert-danger");
 const getDevicesButton = document.querySelector("#getDevicesButton");
 const changeAllButton = document.querySelector("#changeAllButton");
-const end = document.querySelector("#end");
 const unsubscribeSuccessful = document.querySelector("#unsubscribeSuccessful");
 const unsubscribeError = document.querySelector("#unsubscribeError");
+const dateMethod = document.querySelector("#dateMethod");
 const devicesTable = document.querySelector("#devicesTable");
 const tableBody = document.querySelector("#devicesTableBody");
 const templateFila = document.querySelector("#templateFila").content;
 const item = document.querySelector(".item");
 const ErrorRequest = document.querySelector("#ErrorRequest");
-
+const getDevicesOptionButton = document.querySelector(
+    "#getDevicesOptionButton"
+);
+const singleDeviceOptionButton = document.querySelector(
+    "#singleDeviceOptionButton"
+);
+const multipleDevicesOptionButton = document.querySelector(
+    "#multipleDevicesOptionButton"
+);
 const loading = document.querySelector("#loading");
+const methodSelector = document.querySelector("#methodSelector");
+methodSelector.selectedIndex = 0;
 
 const regexpUserName = /^[A-Za-z0-9\s]+$/;
 const regexpPassword = /^[A-Za-z0-9\s]+$/;
@@ -188,6 +205,52 @@ const pintarData = (response, color = "black") => {
     }
 };
 
+// si se selecciona la opcion del sidebar: Get devices
+getDevicesOptionButton.addEventListener("click", (e) => {
+    e.preventDefault();
+    getDevicesOptionButton.style.backgroundColor = "DarkGray";
+    singleDeviceOptionButton.style.backgroundColor = "transparent";
+    multipleDevicesOptionButton.style.backgroundColor = "transparent";
+    getDevicesList.style.display = "block";
+    singleDeviceUnsubscribe.style.display = "none";
+    multipleDeviceUnsubscribe.style.display = "none";
+});
+
+// si se selecciona la opcion del sidebar: Update a device
+singleDeviceOptionButton.addEventListener("click", (e) => {
+    e.preventDefault();
+    getDevicesOptionButton.style.backgroundColor = "transparent";
+    singleDeviceOptionButton.style.backgroundColor = "DarkGray";
+    multipleDevicesOptionButton.style.backgroundColor = "transparent";
+    getDevicesList.style.display = "none";
+    singleDeviceUnsubscribe.style.display = "block";
+    multipleDeviceUnsubscribe.style.display = "none";
+});
+
+// si se selecciona la opcion del sidebar: Update multiple devices
+multipleDevicesOptionButton.addEventListener("click", (e) => {
+    e.preventDefault();
+    getDevicesOptionButton.style.backgroundColor = "transparent";
+    singleDeviceOptionButton.style.backgroundColor = "transparent";
+    multipleDevicesOptionButton.style.backgroundColor = "DarkGray";
+    getDevicesList.style.display = "none";
+    singleDeviceUnsubscribe.style.display = "none";
+    multipleDeviceUnsubscribe.style.display = "block";
+});
+
+// al seleccionar el metodo para establecer el tiempo de dar de baja
+methodSelector.addEventListener("change", (e) => {
+    e.preventDefault();
+    if (methodSelector.selectedIndex === 0) {
+        document.querySelector("#dateMethod").style.display = "block";
+        document.querySelector("#durationMethod").style.display = "none";
+    }
+    if (methodSelector.selectedIndex === 1) {
+        document.querySelector("#dateMethod").style.display = "none";
+        document.querySelector("#durationMethod").style.display = "block";
+    }
+});
+
 //cuando se hace click en el boton Get Devices
 getDevicesButton.addEventListener("click", (e) => {
     e.preventDefault();
@@ -197,7 +260,7 @@ getDevicesButton.addEventListener("click", (e) => {
     groupError.style.display = "none";
     deviceTypeError.style.display = "none";
     changeAllButton.style.display = "none";
-    end.style.display = "none";
+    dateMethod.style.display = "none";
     unsubscribeError.style.display = "none";
     unsubscribeSuccessful.style.display = "none";
     devicesTable.style.display = "none";
@@ -231,10 +294,10 @@ getDevicesButton.addEventListener("click", (e) => {
     //se pone la fecha actual y minima permitida al input date
     const tiempoTranscurrido = Date.now();
     const hoy = new Date(tiempoTranscurrido);
-    end.style.display = "inline-block";
+    dateMethod.style.display = "inline-block";
     const fechas = formatoFecha(hoy);
-    end.value = fechas.plusOneYear;
-    end.min = fechas.today;
+    dateMethod.value = fechas.plusOneYear;
+    dateMethod.min = fechas.today;
 
     const getdevicesResponse = getDevices(
         username.value,
@@ -251,10 +314,10 @@ getDevicesButton.addEventListener("click", (e) => {
             pintarData(dataJson);
             if (dataJson.data.length != 0) {
                 changeAllButton.style.display = "inline-block";
-                end.style.display = "inline-block";
+                dateMethod.style.display = "inline-block";
             } else {
                 changeAllButton.style.display = "none";
-                end.style.display = "none";
+                dateMethod.style.display = "none";
             }
         } else {
             getDevicesResponse = {};
@@ -292,7 +355,7 @@ changeAllButton.addEventListener("click", (e) => {
     Rdata.forEach((element) => {
         requestBody.data[Rdata.indexOf(element)] = {
             id: element.id,
-            unsubscriptionTime: end.valueAsNumber,
+            unsubscriptionTime: dateMethod.valueAsNumber,
         };
     });
 
