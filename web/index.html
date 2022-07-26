@@ -43,7 +43,7 @@
                 <button type="submit" id="authenticateButton" class="btn btn-primary">Authenticate</button>
             </form>
 
-            <button class="optionButton" id="getDevicesOptionButton">Get devices</button>
+            <button class="optionButton" id="getDevicesOptionButton">Get a list of devices from sigfox</button>
             <button class="optionButton" id="singleDeviceOptionButton">Update a device</button>
             <button class="optionButton" id="multipleDevicesOptionButton">Update multiple devices</button>
         </aside>
@@ -68,30 +68,13 @@
                         Device type ID is wrong!
                     </p>
 
-                    <button type="submit" id="getDevicesButton" class="btn btn-primary">Get Devices</button>
+                    <button type="submit" id="getDevicesButton" class="btn btn-primary">Get Devices From Sigfox</button>
 
-                    <p id="unsubscribeSuccessful" class="text-success" role="alert">
-                        Token validity date changed successfull!!!
-                    </p>
-
-                    <p id="unsubscribeError" class="text-danger" role="alert">
-                        Something was wrong!
-                    </p>
-
-                    <div id="loading" class="d-none align-items-center">
-                        <strong>Loading...</strong>
-                        <div class="spinner-border ms-auto" role="status" aria-hidden="true"></div>
-                    </div>
-
-                    <div class="alert alert-success" role="alert">
-                        Code 200. Success request. xxx Registers obtained
-                    </div>
-                    <div id="ErrorRequest" class="alert alert-danger" role="alert">
-                        Request error. 0 Records obtained
+                    <div id="ErrorGettingDevices" class="alert alert-danger" role="alert">
+                        Error getting devices from sigfox
                     </div>
 
                 </form>
-
             </section>
 
             <section id="singleDeviceUnsubscribe">
@@ -100,18 +83,18 @@
                 <form id="singleDeviceForm">
 
                     <label for="deviceId" class="form-label">Device ID</label>
-                    <input type="text" name="deviceId" id="singleDeviceFormID" placeholder="In Hex Format"
-                        class="form-control">
+                    <input type="text" name="deviceId" id="deviceID" placeholder="In Hex Format" class="form-control">
 
-                    <div id="successRequest" class="alert alert-success" role="alert">
-                        Code 200. Success Request!
-                    </div>
-                    <div id="ErrorRequest" class="alert alert-danger" role="alert">
-                        Code 400. Request Error!
+                    <div id="ErrorDeviceId" class="text-danger" role="alert">
+                        Error in device id
                     </div>
 
                     <button type="submit" id="validateSingleDeviceButton" class="btn btn-primary">Validate
                         Device</button>
+
+                    <div id="ErrorValidatingDevice" class="alert alert-danger" role="alert">
+                        Error validating device in sigfox
+                    </div>
                 </form>
 
             </section>
@@ -125,8 +108,12 @@
                     <input type="file" name="csvFile" id="csvFileInput" placeholder="In Hex Format"
                         class="form-control">
 
-                    <button type="submit" id="validateMultipleDevicesButton" class="btn btn-primary">Validate
+                    <button type="submit" id="validateDevicesButton" class="btn btn-primary">Validate
                         Devices</button>
+
+                    <div id="ErrorValidatingDevices" class="alert alert-danger" role="alert">
+                        Error validating devices in sigfox
+                    </div>
                 </form>
             </section>
 
@@ -143,7 +130,22 @@
 
                     <input type="datetime" id="durationMethod" class="form-control" placeholder="1 Year">
 
-                    <button type="submit" id="changeAllButton" class="btn btn-primary">Update</button>
+                    <button type="submit" id="updateButton" class="btn btn-primary">Update</button>
+                </div>
+
+                <div id="changeAreaAlerts">
+                    <p id="alertSuccess" class="alert alert-success" role="alert">
+                        Token validity date changed successfull!!!
+                    </p>
+
+                    <p id="alertError" class="alert alert-danger" role="alert">
+                        Something was wrong!
+                    </p>
+                </div>
+
+                <div id="loading" class="d-none align-items-center justify-content-start">
+                    <strong>Loading...</strong>
+                    <div class="spinner-border ms-auto" role="status" aria-hidden="true"></div>
                 </div>
 
                 <table id="devicesTable">
@@ -172,6 +174,7 @@
             <td class="item tvItem"></td>
         </tr>
     </template>
+
     <script src="js/app.js"></script>
 </body>
 

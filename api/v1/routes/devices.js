@@ -7,19 +7,17 @@ let router = express.Router();
 
 //middleware propio de nosotros, se ejecuta para todas las rutas definidad en este router
 router.use((req, res, next) => {
-    console.log(req.ip);
-
+    console.log("middleware propio");
     next();
 });
 
 //consulta devices al api sigfox
-async function getDevicesFromSigfoxApi(user, pss, groupId, devTypeId) {
-    console.log(`deviceTypeid = ${devTypeId}`);
+async function getDevicesFromSigfoxApi(user, pss, paramUrl) {
     const auth = `${user}:${pss}`;
     const authCoded = Buffer.from(auth, "utf-8").toString("base64");
     // const authCoded = btoa(`${formusername}:${formpassword}`); //funciona pero btoa es obsoleta
 
-    const url = `https://api.sigfox.com/v2/devices?deviceTypeId=${devTypeId}`;
+    const url = `https://api.sigfox.com/v2/devices${paramUrl}`;
     const options = {
         method: "GET", // *GET, POST, PUT, DELETE, etc.
         mode: "no-cors", // no-cors, *cors, same-origin
@@ -117,35 +115,38 @@ router.get("/", (req, res) => {
 
     ///////////////////////////////////////////////////////////////// CAMBIAR ESTO
     //Obteniendo headers del request del frontend
-    // const hostname = req.hostname;
+    const url = req.url.slice(1); //se le quita el primer caracter "/"
+    const hostname = req.hostname;
     // const user = req.headers.user;
     // const password = req.headers.password;
-    // const groupId = req.headers.groupid;
-    // const deviceTypeId = req.headers.devicetypeid;
+    const groupId = req.headers.groupid;
+    const deviceTypeId = req.headers.devicetypeid;
+    const deviceId = req.headers.deviceid;
 
-    const hostname = req.hostname;
+    // const hostname = req.hostname;
     const user = process.env.SIGFOX_API_USERNAME;
     const password = process.env.SIGFOX_API_PASSWORD;
-    const groupId = process.env.TEST_SIGFOX_GROUP;
-    const deviceTypeId = process.env.TEST_SIGFOX_DEVICE_TYPE;
+    // const groupId = process.env.SIGFOX_TEST_GROUP;
+    // const deviceTypeId = process.env.SIGFOX_TEST_DEVICE_TYPE;
+    // const deviceId = process.env.SIGFOX_TEST_DEVICE_ID;
     /////////////////////////////////////////////////////////////////
 
     console.log(`INFORMACION DEL REQUEST:`);
     console.log(`api: request get desde http://${hostname} `);
+    console.log(`api: request get query params: ${url} `);
     console.log(`api: header user: ${user}`);
     console.log(`api: header password: ${password}`);
     console.log(`api: header groupId: ${groupId}`);
     console.log(`api: header deviceTypeId: ${deviceTypeId}`);
+    console.log(`api: header deviceId: ${deviceId}`);
+    console.log(`api: param groupId: ${req.query.groupId} `);
+    console.log(`api: param id: ${req.query.id} `);
+    console.log(`api: param deviceTypeId: ${req.query.deviceTypeId} `);
 
     // consultar API sigfox por devices
     console.log("SE REALIZARÁ REQUEST A API SIGFOX");
 
-    const response = getDevicesFromSigfoxApi(
-        user,
-        password,
-        groupId,
-        deviceTypeId
-    );
+    const response = getDevicesFromSigfoxApi(user, password, url);
 
     response.then((info) => {
         console.log("DATA RECIBIDA DESDE SIGFOX: ");
