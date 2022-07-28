@@ -222,10 +222,20 @@ async function unsubscribeMultipleDevices(
 }
 
 //funcion para verificar que los cambios se realizaron con exito
-function verificarCambios(user, pss, dev, grp, devt, request) {
+function verificarCambios(user, pass, dev, grp, devt, request) {
     console.log("_______________INICIO VERIFICARCAMBIOS______________");
 
-    let valoresSigfox = getDevices(user, pss, "", grp, devt);
+    if (request.origin == "single") {
+        grp = "";
+        devt = "";
+    }
+    if (request.origin == "multiple") {
+        dev = "";
+    }
+    if (request.origin == "csv") {
+    }
+
+    let valoresSigfox = getDevices(user, pass, dev, grp, devt);
 
     let dataVerificada = { data: [] };
 
@@ -390,7 +400,7 @@ multipleDevicesOptionButton.addEventListener("click", (e) => {
     multipleDeviceUnsubscribe.style.display = "block";
 });
 
-//cuando se hace click en el boton Get Devices
+//cuando se hace click en el boton Get Devices from sigfox
 getDevicesButton.addEventListener("click", (e) => {
     e.preventDefault();
     loadingData(true);
@@ -445,6 +455,7 @@ getDevicesButton.addEventListener("click", (e) => {
         console.log("DATA RECIBIDA DESDE BACKEND UAAP: ");
         if (dataJson) {
             globalGetDevicesResponse = dataJson;
+            globalGetDevicesResponse["origin"] = "multiple";
             console.log(dataJson);
             pintarData(dataJson);
             if (dataJson.data.length != 0) {
@@ -462,7 +473,7 @@ getDevicesButton.addEventListener("click", (e) => {
     });
 });
 
-//cuando se hace click en el boton Validate Device
+//cuando se hace click en el boton Validate Single Device
 validateSingleDeviceButton.addEventListener("click", (e) => {
     e.preventDefault();
     loadingData(true);
@@ -509,6 +520,7 @@ validateSingleDeviceButton.addEventListener("click", (e) => {
         console.log("DATA RECIBIDA DESDE BACKEND UAAP: ");
         if (dataJson) {
             globalGetDevicesResponse = dataJson;
+            globalGetDevicesResponse["origin"] = "single";
             console.log(dataJson);
             pintarData(dataJson);
             if (dataJson.data.length != 0) {
@@ -554,6 +566,8 @@ csvFileInput.addEventListener("change", (e) => {
             if (!element.includes("Id") && element.length > 0)
                 globalGetDevicesResponse.data.push(item);
         });
+
+        globalGetDevicesResponse["origin"] = "csv";
 
         console.log(`globalGetDevicesResponse: `, globalGetDevicesResponse);
 
@@ -602,6 +616,8 @@ updateButton.addEventListener("click", (e) => {
         data: [],
     };
 
+    requestBody["origin"] = globalGetDevicesResponse.origin;
+
     let Rdata = globalGetDevicesResponse.data;
     Rdata.forEach((element) => {
         requestBody.data.push({
@@ -630,7 +646,7 @@ updateButton.addEventListener("click", (e) => {
             alertSuccess.style.display = "inline-block";
 
             //verificar que los cambios se efectuaron correctamente a todos los devices
-            //se compara lo que se mandó a cambiar con la nueva información obtenida del backend
+            //se compara lo que se mandó a cambiar con información obtenida del backend despues d realizados los cambios
             verificarCambios(
                 username.value,
                 password.value,
