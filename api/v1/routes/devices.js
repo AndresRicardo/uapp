@@ -119,16 +119,16 @@ router.get("/", (req, res) => {
     const hostname = req.hostname;
     // const user = req.headers.user;
     // const password = req.headers.password;
-    const groupId = req.headers.groupid;
-    const deviceTypeId = req.headers.devicetypeid;
-    const deviceId = req.headers.deviceid;
+    // const groupId = req.headers.groupid;
+    // const deviceTypeId = req.headers.devicetypeid;
+    // const deviceId = req.headers.deviceid;
 
     // const hostname = req.hostname;
     const user = process.env.SIGFOX_API_USERNAME;
     const password = process.env.SIGFOX_API_PASSWORD;
-    // const groupId = process.env.SIGFOX_TEST_GROUP;
-    // const deviceTypeId = process.env.SIGFOX_TEST_DEVICE_TYPE;
-    // const deviceId = process.env.SIGFOX_TEST_DEVICE_ID;
+    const groupId = process.env.SIGFOX_TEST_GROUP;
+    const deviceTypeId = process.env.SIGFOX_TEST_DEVICE_TYPE;
+    const deviceId = process.env.SIGFOX_TEST_DEVICE_ID;
     /////////////////////////////////////////////////////////////////
 
     console.log(`INFORMACION DEL REQUEST:`);

@@ -1,4 +1,5 @@
 //#region   /////////////////////////////// OBTENER ELEMENTOS DEL DOM
+
 // elementos del sidebar
 const username = document.querySelector("#username");
 const usernameError = document.querySelector("#usernameError");
@@ -142,6 +143,45 @@ async function getDevices(
     }
 }
 
+// //funcion para obtener un resulado de una busqueda a partir de una listado de devices
+// function getInfoDevices(request) {
+//     console.log("_______________INICIO GETINFODEVICES______________");
+//     let respuesta = { data: [] };
+
+//     request.data.forEach((element) => {
+//         let url = "http://localhost:3000/devices";
+//         const options = {
+//             method: "GET", // *GET, POST, PUT, DELETE, etc.
+//             mode: "cors", // no-cors, *cors, same-origin
+//             credentials: "same-origin", // include, *same-origin, omit
+//             headers: {
+//                 user: username.value,
+//                 password: password.value,
+//                 deviceid: element.id,
+//                 accept: "application/json",
+//                 "content-Type": "application/json",
+//             },
+//         };
+
+//         let params = new URLSearchParams();
+//         params.append("id", element.id);
+//         url = `${url}?${params.toString()}`;
+
+//         let data = fetch(url, options);
+//         data.then((resp) => resp.json()).then((dataJson) => {
+//             console.log(`dataJson.data[0]: ${dataJson.data[0].id}`);
+//             respuesta.data.push(dataJson.data[0]);
+//         });
+//     });
+
+//     // while (respuesta.data.length === 0) {}
+//     console.log(`DATA DEVUELTA DE TODA LA CONSULTA: ${respuesta}`);
+//     console.log(`DATA DEVUELTA DE TODA LA CONSULTA.data: ${respuesta.data}`);
+//     console.log("_______________FIN GETINFODEVICES______________");
+
+//     return respuesta;
+// }
+
 //funcion para desuscribir multiples devices
 async function unsubscribeMultipleDevices(
     username,
@@ -179,6 +219,33 @@ async function unsubscribeMultipleDevices(
     } catch (error) {
         return `ERROR DANDO DE BAJA DEVICES, ERROR CAPTURADO: ${error}`;
     }
+}
+
+//funcion para verificar que los cambios se realizaron con exito
+function verificarCambios(user, pss, dev, grp, devt, request) {
+    console.log("_______________INICIO VERIFICARCAMBIOS______________");
+
+    let valoresSigfox = getDevices(user, pss, "", grp, devt);
+
+    let dataVerificada = { data: [] };
+
+    valoresSigfox.then((dataJson) => {
+        dataJson.data.forEach((element) => {
+            request.data.forEach((ele) => {
+                if (ele.id == element.id) {
+                    if (ele.unsubscriptionTime == element.unsubscriptionTime)
+                        element["verificacion"] = true;
+                    else element["verificacion"] = false;
+
+                    dataVerificada.data.push(element);
+                }
+            });
+        });
+
+        console.log("DATA VERIFACADA: ", dataVerificada);
+        pintarData(dataVerificada);
+        console.log("_______________FIN VERIFICARCAMBIOS______________");
+    });
 }
 
 //para formatear la fecha
@@ -226,9 +293,10 @@ const loadingData = (estado) => {
 };
 
 //pintar en la pagina la informacion recibida
-const pintarData = (response, color = "black") => {
-    if (response.data.length > 0) {
-        console.log("pintando data recibida");
+const pintarData = (Data, color = "black") => {
+    console.log(`pintando data recibida Data: ${Data}`, Data);
+    if (Data.data.length > 0) {
+        console.log("entra al if");
         changeArea.style.display = "block";
         devicesTable.style.display = "block";
         const fragment = document.createDocumentFragment();
@@ -238,7 +306,7 @@ const pintarData = (response, color = "black") => {
             tableBody.removeChild(tableBody.lastChild);
         }
 
-        response.data.forEach((item) => {
+        Data.data.forEach((item) => {
             const clone = templateFila.cloneNode(true);
             clone.querySelector(".idItem").textContent = item.id;
             clone.querySelector(".dtItem").textContent = item.deviceType.id;
@@ -246,6 +314,9 @@ const pintarData = (response, color = "black") => {
             clone.querySelector(".tvItem").textContent = formatoFecha(
                 new Date(item.token.end)
             ).today;
+
+            if (item.verificacion == true) color = "green";
+            if (item.verificacion == false) color = "red";
 
             clone.querySelector(".idItem").style.color = color;
             clone.querySelector(".dtItem").style.color = color;
@@ -456,6 +527,39 @@ validateSingleDeviceButton.addEventListener("click", (e) => {
 });
 
 //cuando se selecciona un archivo csv
+csvFileInput.addEventListener("change", (e) => {
+    let fr = new FileReader();
+    fr.readAsText(csvFileInput.files[0]);
+
+    //cuando se termine de cargar el archivo
+    fr.onload = function () {
+        // arreglo de id's cargados desde csv
+        let arr = fr.result.split("\n");
+
+        console.log(`string de id's cargados desde csv: ${fr.result}`);
+        console.log(`array de id's cargados desde csv: ${arr}`);
+
+        globalGetDevicesResponse = {
+            data: [],
+        };
+
+        arr.forEach((element) => {
+            let item = {
+                id: element.replaceAll('"', ""),
+                deviceType: { id: "--" },
+                group: { id: "--" },
+                token: { state: "--", detailMessage: "N--", end: "--" },
+            };
+
+            if (!element.includes("Id") && element.length > 0)
+                globalGetDevicesResponse.data.push(item);
+        });
+
+        console.log(`globalGetDevicesResponse: `, globalGetDevicesResponse);
+
+        pintarData(globalGetDevicesResponse, "black");
+    };
+});
 
 //cuando se hace click en boton validar multiple devices
 validateDevicesButton.addEventListener("click", (e) => {
@@ -485,7 +589,7 @@ updateButton.addEventListener("click", (e) => {
     //crear request post al backend uapp para cambiar token validity a multiples devices
     console.log("RUTINA PARA CAMBIAR TOKEN VALIDITY A MULTIPLES DEVICES");
 
-    //si no hay devices para cambiar token validity
+    //verificar si hay devices para hacer update
     if (!globalGetDevicesResponse.hasOwnProperty("data")) {
         loadingData(false);
         alertError.textContent = "No devices to unsubscribe!";
@@ -493,20 +597,20 @@ updateButton.addEventListener("click", (e) => {
         return;
     }
 
-    // body del request al backend de uapp
+    // armar body del request al backend de uapp
     let requestBody = {
         data: [],
     };
 
-    //se llena el body del request
     let Rdata = globalGetDevicesResponse.data;
     Rdata.forEach((element) => {
-        requestBody.data[Rdata.indexOf(element)] = {
+        requestBody.data.push({
             id: element.id,
             unsubscriptionTime: dateMethod.valueAsNumber,
-        };
+        });
     });
 
+    //hacer update de todos los devices de la lista
     let unsubResponse = unsubscribeMultipleDevices(
         username.value,
         password.value,
@@ -524,7 +628,17 @@ updateButton.addEventListener("click", (e) => {
 
         if (resp.hasOwnProperty("jobId")) {
             alertSuccess.style.display = "inline-block";
-            pintarData(globalGetDevicesResponse, "green");
+
+            //verificar que los cambios se efectuaron correctamente a todos los devices
+            //se compara lo que se mandó a cambiar con la nueva información obtenida del backend
+            verificarCambios(
+                username.value,
+                password.value,
+                deviceID.value,
+                group.value,
+                deviceType.value,
+                requestBody
+            );
         }
 
         loadingData(false);
