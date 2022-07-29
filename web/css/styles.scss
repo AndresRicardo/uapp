@@ -114,7 +114,7 @@ body {
                 text-align: left;
             }
 
-            #getDevicesOptionButton {
+            #singleDeviceOptionButton {
                 margin-top: 20px;
                 background-color: DarkGray;
             }
@@ -135,7 +135,7 @@ body {
                 padding: 10px;
                 border: 1px solid $colorLightGray;
                 border-radius: 5px;
-                display: block;
+                display: none;
 
                 input {
                     width: 20rem;
@@ -174,7 +174,7 @@ body {
                 padding: 10px;
                 border: 1px solid $colorLightGray;
                 border-radius: 5px;
-                display: none;
+                display: block;
 
                 input {
                     width: 100%;

@@ -94,7 +94,7 @@ body #main #sidebar .optionButton {
   border: none;
   text-align: left;
 }
-body #main #sidebar #getDevicesOptionButton {
+body #main #sidebar #singleDeviceOptionButton {
   margin-top: 20px;
   background-color: DarkGray;
 }
@@ -113,7 +113,7 @@ body #main #container #getDevicesList {
   padding: 10px;
   border: 1px solid #bdc1c3;
   border-radius: 5px;
-  display: block;
+  display: none;
 }
 body #main #container #getDevicesList input {
   width: 20rem;
@@ -145,7 +145,7 @@ body #main #container #singleDeviceUnsubscribe {
   padding: 10px;
   border: 1px solid #bdc1c3;
   border-radius: 5px;
-  display: none;
+  display: block;
 }
 body #main #container #singleDeviceUnsubscribe input {
   width: 100%;

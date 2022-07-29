@@ -43,14 +43,38 @@
                 <button type="submit" id="authenticateButton" class="btn btn-primary">Authenticate</button>
             </form>
 
-            <button class="optionButton" id="getDevicesOptionButton">Get a list of devices from sigfox</button>
-            <button class="optionButton" id="singleDeviceOptionButton">Update a device</button>
-            <button class="optionButton" id="multipleDevicesOptionButton">Update multiple devices</button>
+            <button class="optionButton" id="singleDeviceOptionButton">Search and update a device</button>
+            <button class="optionButton" id="getDevicesOptionButton">Search and update devices</button>
+            <button class="optionButton" id="multipleDevicesOptionButton">Load and update devices from csv
+                file</button>
         </aside>
 
         <div id="container">
+
+            <section id="singleDeviceUnsubscribe">
+                <h2 id="singleDeviceTitle">Search and update a device</h2>
+
+                <form id="singleDeviceForm">
+
+                    <label for="deviceId" class="form-label">Device ID</label>
+                    <input type="text" name="deviceId" id="deviceID" placeholder="In Hex Format" class="form-control">
+
+                    <div id="ErrorDeviceId" class="text-danger" role="alert">
+                        Error in device id
+                    </div>
+
+                    <button type="submit" id="validateSingleDeviceButton" class="btn btn-primary">Get a device from
+                        sigfox</button>
+
+                    <div id="ErrorValidatingDevice" class="alert alert-danger" role="alert">
+                        Error validating device in sigfox
+                    </div>
+                </form>
+
+            </section>
+
             <section id="getDevicesList">
-                <h2 id="GetDeviceTitle">Get devices</h2>
+                <h2 id="GetDeviceTitle">Search and update devices</h2>
 
                 <form id="GetDevicesListForm">
 
@@ -77,30 +101,8 @@
                 </form>
             </section>
 
-            <section id="singleDeviceUnsubscribe">
-                <h2 id="singleDeviceTitle">Update a device</h2>
-
-                <form id="singleDeviceForm">
-
-                    <label for="deviceId" class="form-label">Device ID</label>
-                    <input type="text" name="deviceId" id="deviceID" placeholder="In Hex Format" class="form-control">
-
-                    <div id="ErrorDeviceId" class="text-danger" role="alert">
-                        Error in device id
-                    </div>
-
-                    <button type="submit" id="validateSingleDeviceButton" class="btn btn-primary">Validate
-                        Device</button>
-
-                    <div id="ErrorValidatingDevice" class="alert alert-danger" role="alert">
-                        Error validating device in sigfox
-                    </div>
-                </form>
-
-            </section>
-
             <section id="multipleDeviceUnsubscribe">
-                <h2 id="multipleDeviceTitle">Update multiple devices</h2>
+                <h2 id="multipleDeviceTitle">Load and update devices from csv file</h2>
 
                 <form id="multipleDeviceForm">
 

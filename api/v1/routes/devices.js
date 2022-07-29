@@ -7,7 +7,11 @@ let router = express.Router();
 
 //middleware propio de nosotros, se ejecuta para todas las rutas definidad en este router
 router.use((req, res, next) => {
-    console.log("middleware propio");
+    console.log("//////////////////////// MIDDLEWARE ////////////////////////");
+    console.log(
+        "//////////////////////// SE RECIBE UN REQUEST A /DEVICES ////////////////////////"
+    );
+    console.log("//////////////////////// MIDDLEWARE ////////////////////////");
     next();
 });
 
@@ -117,18 +121,18 @@ router.get("/", (req, res) => {
     //Obteniendo headers del request del frontend
     const url = req.url.slice(1); //se le quita el primer caracter "/"
     const hostname = req.hostname;
-    // const user = req.headers.user;
-    // const password = req.headers.password;
-    // const groupId = req.headers.groupid;
-    // const deviceTypeId = req.headers.devicetypeid;
-    // const deviceId = req.headers.deviceid;
+    const user = req.headers.user;
+    const password = req.headers.password;
+    const groupId = req.headers.groupid;
+    const deviceTypeId = req.headers.devicetypeid;
+    const deviceId = req.headers.deviceid;
 
     // const hostname = req.hostname;
-    const user = process.env.SIGFOX_API_USERNAME;
-    const password = process.env.SIGFOX_API_PASSWORD;
-    const groupId = process.env.SIGFOX_TEST_GROUP;
-    const deviceTypeId = process.env.SIGFOX_TEST_DEVICE_TYPE;
-    const deviceId = process.env.SIGFOX_TEST_DEVICE_ID;
+    // const user = process.env.SIGFOX_API_USERNAME;
+    // const password = process.env.SIGFOX_API_PASSWORD;
+    // const groupId = process.env.SIGFOX_TEST_GROUP;
+    // const deviceTypeId = process.env.SIGFOX_TEST_DEVICE_TYPE;
+    // const deviceId = process.env.SIGFOX_TEST_DEVICE_ID;
     /////////////////////////////////////////////////////////////////
 
     console.log(`INFORMACION DEL REQUEST:`);
@@ -162,15 +166,15 @@ router.post("/bulk/unsubscribe", (req, res) => {
     ///////////////////////////////////////////////////////////////// CAMBIAR ESTO
     // Obteniendo headers del request del frontend
     const hostname = req.hostname;
-    // const user = req.headers.user;
-    // const password = req.headers.password;
-    // const groupId = req.headers.groupid;
+    const user = req.headers.user;
+    const password = req.headers.password;
+    const groupId = req.headers.groupid;
     const body = req.body;
 
     ///////////////////////////////////////////////////////////////// COMENTAR DESCOMENTAR ESTO
-    const user = process.env.SIGFOX_API_USERNAME;
-    const password = process.env.SIGFOX_API_PASSWORD;
-    const groupId = process.env.TEST_SIGFOX_GROUP;
+    // const user = process.env.SIGFOX_API_USERNAME;
+    // const password = process.env.SIGFOX_API_PASSWORD;
+    // const groupId = process.env.TEST_SIGFOX_GROUP;
     /////////////////////////////////////////////////////////////////
 
     console.log(`INFORMACION DEL REQUEST:

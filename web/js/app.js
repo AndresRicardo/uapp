@@ -77,8 +77,83 @@ let globalUnsubscribeResponse = {}; //data recibida desde sigfox
 //#endregion
 
 //#region   /////////////////////////////// FUNCIONES
-//funcion para consultar al backend los devices en un determiando device type
-async function getDevices(
+
+//para formatear la fecha
+function formatoFecha(fecha) {
+    let day = fecha.getDate();
+    let newDay = fecha.getDate() + 1;
+    let month = fecha.getMonth() + 1;
+    let newMonth = fecha.getMonth() + 2;
+    let year = fecha.getFullYear();
+    let newYear = fecha.getFullYear() + 1;
+
+    if (Number(day) <= 9) day = `0${day}`;
+    if (Number(newDay) <= 9) newDay = `0${newDay}`;
+    if (Number(month) <= 9) month = `0${month}`;
+    if (Number(newMonth) <= 9) newMonth = `0${newMonth}`;
+
+    let resp = {
+        today: `${year}-${month}-${day}`,
+        tomorrow: `${year}-${month}-${newDay}`,
+        plusOneMonth: `${year}-${newMonth}-${day}`,
+        plusOneYear: `${newYear}-${month}-${day}`,
+    };
+    return resp;
+}
+
+//para establecer la fecha actual y minima permitida al input date
+function setCurrentTime() {
+    const tiempoTranscurrido = Date.now();
+    const hoy = new Date(tiempoTranscurrido);
+    dateMethod.style.display = "inline-block";
+    const fechas = formatoFecha(hoy);
+    dateMethod.value = fechas.plusOneYear;
+    dateMethod.min = fechas.today;
+}
+
+//mostrar/ocultar spinner de carga
+const loadingData = (estado) => {
+    if (estado) {
+        loading.classList.remove("d-none");
+        loading.classList.add("d-flex");
+    } else {
+        loading.classList.remove("d-flex");
+        loading.classList.add("d-none");
+    }
+};
+
+//funcion para comparar unsubscribeTime
+function compararDatos(devicesList, responseList) {
+    console.log(
+        `----------------------COMPROBAR CAMBIOS----------------------------------`
+    );
+
+    console.log("devicesList: ", devicesList);
+    console.log("responseList: ", responseList);
+
+    let dataVerificada = devicesList;
+
+    dataVerificada.data.forEach((element) => {
+        responseList.data.forEach((ele) => {
+            if (parseInt(ele.id, 16) == parseInt(element.id, 16)) {
+                element["deviceType"] = ele["deviceType"];
+                element["group"] = ele["group"];
+                element["token"] = ele["token"];
+                if (ele.unsubscriptionTime == element.unsubscriptionTime)
+                    element["verificacion"] = true;
+                else element["verificacion"] = false;
+            }
+        });
+    });
+
+    console.log("DATA VERIFACADA: ", dataVerificada);
+
+    loadingData(false);
+    pintarData(dataVerificada);
+}
+
+//funcion para buscar en sigfox info de devices en un grupo, devicetype o de un solo device
+async function getDevicesFromSigfox(
     formUsername,
     formPassword,
     formDeviceID = "",
@@ -143,46 +218,86 @@ async function getDevices(
     }
 }
 
-// //funcion para obtener un resulado de una busqueda a partir de una listado de devices
-// function getInfoDevices(request) {
-//     console.log("_______________INICIO GETINFODEVICES______________");
-//     let respuesta = { data: [] };
+// funcion para buscar en sigfox info de devices a partir de una listado de devices
+function getFromSigfoxDevicesInList(
+    username,
+    password,
+    devicesList,
+    isForUpdate = false
+) {
+    console.log(
+        "_______________INICIO getFromSigfoxDevicesInList______________"
+    );
 
-//     request.data.forEach((element) => {
-//         let url = "http://localhost:3000/devices";
-//         const options = {
-//             method: "GET", // *GET, POST, PUT, DELETE, etc.
-//             mode: "cors", // no-cors, *cors, same-origin
-//             credentials: "same-origin", // include, *same-origin, omit
-//             headers: {
-//                 user: username.value,
-//                 password: password.value,
-//                 deviceid: element.id,
-//                 accept: "application/json",
-//                 "content-Type": "application/json",
-//             },
-//         };
+    //todas las respuestas de los devices de la lista
+    let responseList = { data: [] };
 
-//         let params = new URLSearchParams();
-//         params.append("id", element.id);
-//         url = `${url}?${params.toString()}`;
+    // armar request generico
+    const options = {
+        method: "GET", // *GET, POST, PUT, DELETE, etc.
+        mode: "cors", // no-cors, *cors, same-origin
+        credentials: "same-origin", // include, *same-origin, omit
+        headers: {
+            user: username,
+            password: password,
+            accept: "application/json",
+            "content-Type": "application/json",
+        },
+    };
 
-//         let data = fetch(url, options);
-//         data.then((resp) => resp.json()).then((dataJson) => {
-//             console.log(`dataJson.data[0]: ${dataJson.data[0].id}`);
-//             respuesta.data.push(dataJson.data[0]);
-//         });
-//     });
+    //recorrer listado de devices
+    devicesList.data.forEach((element) => {
+        //armar url para cada device de la lista
+        let params = new URLSearchParams();
+        params.append("id", element.id);
+        let url = `http://localhost:3000/devices?${params.toString()}`;
 
-//     // while (respuesta.data.length === 0) {}
-//     console.log(`DATA DEVUELTA DE TODA LA CONSULTA: ${respuesta}`);
-//     console.log(`DATA DEVUELTA DE TODA LA CONSULTA.data: ${respuesta.data}`);
-//     console.log("_______________FIN GETINFODEVICES______________");
+        fetch(url, options)
+            .then((resp) => {
+                if (resp.ok) {
+                    resp.json()
+                        .then((deviceInfo) => {
+                            responseList.data.push(deviceInfo.data[0]);
 
-//     return respuesta;
-// }
+                            //cuando se llega al final de las consultas individuales a sigfox inicia verificación
+                            if (
+                                devicesList.data.indexOf(element) ===
+                                devicesList.data.length - 1
+                            ) {
+                                if (!isForUpdate) {
+                                    pintarData(responseList);
+                                } else {
+                                    compararDatos(devicesList, responseList);
+                                }
+                            }
+                        })
+                        .catch((error) => {
+                            //cuando se llega al final de las consultas individuales a sigfox inicia verificación
+                            if (
+                                devicesList.data.indexOf(element) ===
+                                devicesList.data.length - 1
+                            ) {
+                                if (!isForUpdate) {
+                                    pintarData(responseList);
+                                } else {
+                                    compararDatos(devicesList, responseList);
+                                }
+                            }
+                        });
+                } else console.log(`resp.status: ${resp.status}`);
+            })
+            .catch((error) => {
+                console.log(
+                    `iteración en lista de devices. index: ${devicesList.data.indexOf(
+                        element
+                    )}, device: ${element.id}`
+                );
+                console.log(`fetch fail`);
+            });
+    });
+}
 
-//funcion para desuscribir multiples devices
+//funcion para cambiar token validity a multiples devices
 async function unsubscribeMultipleDevices(
     username,
     password,
@@ -225,88 +340,51 @@ async function unsubscribeMultipleDevices(
 function verificarCambios(user, pass, dev, grp, devt, request) {
     console.log("_______________INICIO VERIFICARCAMBIOS______________");
 
+    let valoresSigfox = {};
+
     if (request.origin == "single") {
         grp = "";
         devt = "";
+        valoresSigfox = getDevicesFromSigfox(user, pass, dev, grp, devt);
     }
     if (request.origin == "multiple") {
         dev = "";
+        valoresSigfox = getDevicesFromSigfox(user, pass, dev, grp, devt);
     }
     if (request.origin == "csv") {
+        getFromSigfoxDevicesInList(user, pass, request, true);
     }
 
-    let valoresSigfox = getDevices(user, pass, dev, grp, devt);
+    if (request.origin !== "csv") {
+        let dataVerificada = { data: [] };
 
-    let dataVerificada = { data: [] };
+        valoresSigfox.then((dataJson) => {
+            dataJson.data.forEach((element) => {
+                request.data.forEach((ele) => {
+                    if (ele.id == element.id) {
+                        if (
+                            ele.unsubscriptionTime == element.unsubscriptionTime
+                        )
+                            element["verificacion"] = true;
+                        else element["verificacion"] = false;
 
-    valoresSigfox.then((dataJson) => {
-        dataJson.data.forEach((element) => {
-            request.data.forEach((ele) => {
-                if (ele.id == element.id) {
-                    if (ele.unsubscriptionTime == element.unsubscriptionTime)
-                        element["verificacion"] = true;
-                    else element["verificacion"] = false;
-
-                    dataVerificada.data.push(element);
-                }
+                        dataVerificada.data.push(element);
+                    }
+                });
             });
+
+            console.log("DATA VERIFACADA: ", dataVerificada);
+            pintarData(dataVerificada);
+            loadingData(false);
+            console.log("_______________FIN VERIFICARCAMBIOS______________");
         });
-
-        console.log("DATA VERIFACADA: ", dataVerificada);
-        pintarData(dataVerificada);
-        console.log("_______________FIN VERIFICARCAMBIOS______________");
-    });
-}
-
-//para formatear la fecha
-function formatoFecha(fecha) {
-    let day = fecha.getDate();
-    let newDay = fecha.getDate() + 1;
-    let month = fecha.getMonth() + 1;
-    let newMonth = fecha.getMonth() + 2;
-    let year = fecha.getFullYear();
-    let newYear = fecha.getFullYear() + 1;
-
-    if (Number(day) <= 9) day = `0${day}`;
-    if (Number(newDay) <= 9) newDay = `0${newDay}`;
-    if (Number(month) <= 9) month = `0${month}`;
-    if (Number(newMonth) <= 9) newMonth = `0${newMonth}`;
-
-    let resp = {
-        today: `${year}-${month}-${day}`,
-        tomorrow: `${year}-${month}-${newDay}`,
-        plusOneMonth: `${year}-${newMonth}-${day}`,
-        plusOneYear: `${newYear}-${month}-${day}`,
-    };
-    return resp;
-}
-
-//para establecer la fecha actual y minima permitida al input date
-function setCurrentTime() {
-    const tiempoTranscurrido = Date.now();
-    const hoy = new Date(tiempoTranscurrido);
-    dateMethod.style.display = "inline-block";
-    const fechas = formatoFecha(hoy);
-    dateMethod.value = fechas.plusOneYear;
-    dateMethod.min = fechas.today;
-}
-
-//mostrar/ocultar spinner de carga
-const loadingData = (estado) => {
-    if (estado) {
-        loading.classList.remove("d-none");
-        loading.classList.add("d-flex");
-    } else {
-        loading.classList.remove("d-flex");
-        loading.classList.add("d-none");
     }
-};
+}
 
-//pintar en la pagina la informacion recibida
+//pintar en la tabla la info recibida
 const pintarData = (Data, color = "black") => {
     console.log(`pintando data recibida Data: ${Data}`, Data);
     if (Data.data.length > 0) {
-        console.log("entra al if");
         changeArea.style.display = "block";
         devicesTable.style.display = "block";
         const fragment = document.createDocumentFragment();
@@ -327,6 +405,7 @@ const pintarData = (Data, color = "black") => {
 
             if (item.verificacion == true) color = "green";
             if (item.verificacion == false) color = "red";
+            if (item.verificacion == undefined) color = "black";
 
             clone.querySelector(".idItem").style.color = color;
             clone.querySelector(".dtItem").style.color = color;
@@ -367,18 +446,7 @@ authenticateButton.addEventListener("click", (e) => {
     globalPassword = password.value;
 });
 
-// si se selecciona la opcion del sidebar: Get devices
-getDevicesOptionButton.addEventListener("click", (e) => {
-    e.preventDefault();
-    getDevicesOptionButton.style.backgroundColor = "DarkGray";
-    singleDeviceOptionButton.style.backgroundColor = "transparent";
-    multipleDevicesOptionButton.style.backgroundColor = "transparent";
-    getDevicesList.style.display = "block";
-    singleDeviceUnsubscribe.style.display = "none";
-    multipleDeviceUnsubscribe.style.display = "none";
-});
-
-// si se selecciona la opcion del sidebar: Update a device
+// si del menú lateral se selecciona la opcion: Search and update a device
 singleDeviceOptionButton.addEventListener("click", (e) => {
     e.preventDefault();
     getDevicesOptionButton.style.backgroundColor = "transparent";
@@ -389,7 +457,18 @@ singleDeviceOptionButton.addEventListener("click", (e) => {
     multipleDeviceUnsubscribe.style.display = "none";
 });
 
-// si se selecciona la opcion del sidebar: Update multiple devices
+// si del menú lateral se selecciona la opcion: Search and update devices
+getDevicesOptionButton.addEventListener("click", (e) => {
+    e.preventDefault();
+    getDevicesOptionButton.style.backgroundColor = "DarkGray";
+    singleDeviceOptionButton.style.backgroundColor = "transparent";
+    multipleDevicesOptionButton.style.backgroundColor = "transparent";
+    getDevicesList.style.display = "block";
+    singleDeviceUnsubscribe.style.display = "none";
+    multipleDeviceUnsubscribe.style.display = "none";
+});
+
+// si del menú lateral se selecciona la opcion: Load and update devices from csv file
 multipleDevicesOptionButton.addEventListener("click", (e) => {
     e.preventDefault();
     getDevicesOptionButton.style.backgroundColor = "transparent";
@@ -400,7 +479,72 @@ multipleDevicesOptionButton.addEventListener("click", (e) => {
     multipleDeviceUnsubscribe.style.display = "block";
 });
 
-//cuando se hace click en el boton Get Devices from sigfox
+//cuando se hace click en el boton: Get a device from sigfox
+validateSingleDeviceButton.addEventListener("click", (e) => {
+    e.preventDefault();
+    loadingData(true);
+    usernameError.style.display = "none";
+    passwordError.style.display = "none";
+    changeArea.style.display = "none";
+    alertError.style.display = "none";
+    alertSuccess.style.display = "none";
+    devicesTable.style.display = "none";
+    ErrorDeviceId.style.display = "none";
+    ErrorValidatingDevice.style.display = "none";
+
+    globalGetDevicesResponse = {}; //se vacia la variable con anteriores respuestas
+
+    let error = false;
+
+    if (!regexpUserName.test(username.value)) {
+        usernameError.style.display = "block";
+        error = true;
+    }
+    if (!regexpPassword.test(password.value)) {
+        passwordError.style.display = "block";
+        error = true;
+    }
+    if (!regexpDeviceId.test(deviceID.value)) {
+        ErrorDeviceId.style.display = "block";
+        error = true;
+    }
+    if (error) {
+        loadingData(false);
+        return;
+    }
+
+    //se pone la fecha actual y minima permitida al input date
+    setCurrentTime();
+
+    const getdevicesResponse = getDevicesFromSigfox(
+        username.value,
+        password.value,
+        deviceID.value
+    );
+
+    getdevicesResponse.then((dataJson) => {
+        console.log("DATA RECIBIDA DESDE BACKEND UAAP: ");
+        if (dataJson) {
+            globalGetDevicesResponse = dataJson;
+            globalGetDevicesResponse["origin"] = "single";
+            console.log(dataJson);
+            pintarData(dataJson);
+            if (dataJson.data.length != 0) {
+                updateButton.style.display = "inline-block";
+                dateMethod.style.display = "inline-block";
+            } else {
+                updateButton.style.display = "none";
+                dateMethod.style.display = "none";
+            }
+        } else {
+            globalGetDevicesResponse = {};
+            ErrorValidatingDevice.style.display = "inline-block";
+        }
+        loadingData(false);
+    });
+});
+
+//cuando se hace click en el boton Get devices from sigfox
 getDevicesButton.addEventListener("click", (e) => {
     e.preventDefault();
     loadingData(true);
@@ -443,7 +587,7 @@ getDevicesButton.addEventListener("click", (e) => {
     //se pone la fecha actual y minima permitida al input date
     setCurrentTime();
 
-    const getdevicesResponse = getDevices(
+    const getdevicesResponse = getDevicesFromSigfox(
         username.value,
         password.value,
         "",
@@ -473,71 +617,6 @@ getDevicesButton.addEventListener("click", (e) => {
     });
 });
 
-//cuando se hace click en el boton Validate Single Device
-validateSingleDeviceButton.addEventListener("click", (e) => {
-    e.preventDefault();
-    loadingData(true);
-    usernameError.style.display = "none";
-    passwordError.style.display = "none";
-    changeArea.style.display = "none";
-    alertError.style.display = "none";
-    alertSuccess.style.display = "none";
-    devicesTable.style.display = "none";
-    ErrorDeviceId.style.display = "none";
-    ErrorValidatingDevice.style.display = "none";
-
-    globalGetDevicesResponse = {}; //se vacia la variable con anteriores respuestas
-
-    let error = false;
-
-    if (!regexpUserName.test(username.value)) {
-        usernameError.style.display = "block";
-        error = true;
-    }
-    if (!regexpPassword.test(password.value)) {
-        passwordError.style.display = "block";
-        error = true;
-    }
-    if (!regexpDeviceId.test(deviceID.value)) {
-        ErrorDeviceId.style.display = "block";
-        error = true;
-    }
-    if (error) {
-        loadingData(false);
-        return;
-    }
-
-    //se pone la fecha actual y minima permitida al input date
-    setCurrentTime();
-
-    const getdevicesResponse = getDevices(
-        username.value,
-        password.value,
-        deviceID.value
-    );
-
-    getdevicesResponse.then((dataJson) => {
-        console.log("DATA RECIBIDA DESDE BACKEND UAAP: ");
-        if (dataJson) {
-            globalGetDevicesResponse = dataJson;
-            globalGetDevicesResponse["origin"] = "single";
-            console.log(dataJson);
-            pintarData(dataJson);
-            if (dataJson.data.length != 0) {
-                updateButton.style.display = "inline-block";
-                dateMethod.style.display = "inline-block";
-            } else {
-                updateButton.style.display = "none";
-                dateMethod.style.display = "none";
-            }
-        } else {
-            globalGetDevicesResponse = {};
-            ErrorValidatingDevice.style.display = "inline-block";
-        }
-        loadingData(false);
-    });
-});
-
 //cuando se selecciona un archivo csv
 csvFileInput.addEventListener("change", (e) => {
     let fr = new FileReader();
@@ -548,8 +627,8 @@ csvFileInput.addEventListener("change", (e) => {
         // arreglo de id's cargados desde csv
         let arr = fr.result.split("\n");
 
-        console.log(`string de id's cargados desde csv: ${fr.result}`);
-        console.log(`array de id's cargados desde csv: ${arr}`);
+        // console.log(`string de id's cargados desde csv: ${fr.result}`);
+        // console.log(`array de id's cargados desde csv: ${arr}`);
 
         globalGetDevicesResponse = {
             data: [],
@@ -560,7 +639,7 @@ csvFileInput.addEventListener("change", (e) => {
                 id: element.replaceAll('"', ""),
                 deviceType: { id: "--" },
                 group: { id: "--" },
-                token: { state: "--", detailMessage: "N--", end: "--" },
+                token: { state: "--", detailMessage: "--", end: "--" },
             };
 
             if (!element.includes("Id") && element.length > 0)
@@ -578,6 +657,13 @@ csvFileInput.addEventListener("change", (e) => {
 //cuando se hace click en boton validar multiple devices
 validateDevicesButton.addEventListener("click", (e) => {
     e.preventDefault();
+
+    getFromSigfoxDevicesInList(
+        username.value,
+        password.value,
+        globalGetDevicesResponse,
+        true
+    );
 });
 
 // al seleccionar el metodo para establecer el tiempo de dar de baja
@@ -607,7 +693,7 @@ updateButton.addEventListener("click", (e) => {
     if (!globalGetDevicesResponse.hasOwnProperty("data")) {
         loadingData(false);
         alertError.textContent = "No devices to unsubscribe!";
-        alertError.style.display = "block";
+        alertError.style.display = "inline-block";
         return;
     }
 
@@ -618,12 +704,13 @@ updateButton.addEventListener("click", (e) => {
 
     requestBody["origin"] = globalGetDevicesResponse.origin;
 
-    let Rdata = globalGetDevicesResponse.data;
-    Rdata.forEach((element) => {
+    globalGetDevicesResponse.data.forEach((element) => {
         requestBody.data.push({
             id: element.id,
             unsubscriptionTime: dateMethod.valueAsNumber,
         });
+
+        element["unsubscriptionTime"] = dateMethod.valueAsNumber;
     });
 
     //hacer update de todos los devices de la lista
@@ -653,7 +740,7 @@ updateButton.addEventListener("click", (e) => {
                 deviceID.value,
                 group.value,
                 deviceType.value,
-                requestBody
+                globalGetDevicesResponse
             );
         }
 
