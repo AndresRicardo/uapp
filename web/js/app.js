@@ -245,6 +245,8 @@ function getFromSigfoxDevicesInList(
         },
     };
 
+    let count = 0;
+
     //recorrer listado de devices
     devicesList.data.forEach((element) => {
         //armar url para cada device de la lista
@@ -257,13 +259,11 @@ function getFromSigfoxDevicesInList(
                 if (resp.ok) {
                     resp.json()
                         .then((deviceInfo) => {
+                            count++;
                             responseList.data.push(deviceInfo.data[0]);
 
                             //cuando se llega al final de las consultas individuales a sigfox inicia verificación
-                            if (
-                                devicesList.data.indexOf(element) ===
-                                devicesList.data.length - 1
-                            ) {
+                            if (count === devicesList.data.length) {
                                 if (!isForUpdate) {
                                     pintarData(responseList);
                                 } else {
@@ -273,10 +273,8 @@ function getFromSigfoxDevicesInList(
                         })
                         .catch((error) => {
                             //cuando se llega al final de las consultas individuales a sigfox inicia verificación
-                            if (
-                                devicesList.data.indexOf(element) ===
-                                devicesList.data.length - 1
-                            ) {
+                            count++;
+                            if (count === devicesList.data.length) {
                                 if (!isForUpdate) {
                                     pintarData(responseList);
                                 } else {
@@ -654,7 +652,7 @@ csvFileInput.addEventListener("change", (e) => {
     };
 });
 
-//cuando se hace click en boton validar multiple devices
+//cuando se hace click en boton validar devices cargados desde csv
 validateDevicesButton.addEventListener("click", (e) => {
     e.preventDefault();
 
@@ -662,7 +660,7 @@ validateDevicesButton.addEventListener("click", (e) => {
         username.value,
         password.value,
         globalGetDevicesResponse,
-        true
+        false
     );
 });
 
